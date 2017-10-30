@@ -1,0 +1,4 @@
+package: github.com/anhtuan29592/battleship-ai
+import:
+- package: github.com/gin-gonic/gin
+- package: github.com/jinzhu/gorm

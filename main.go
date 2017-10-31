@@ -9,35 +9,6 @@ import (
 )
 
 func main() {
-
-	// router := gin.Default()
-
-	// v1 := router.Group("/paladin")
-	// {
-	// 	v1.POST("/", CreateTodo)
-	// 	v1.GET("/", FetchAllTodo)
-	// 	v1.GET("/:id", FetchSingleTodo)
-	// 	v1.PUT("/:id", UpdateTodo)
-	// 	v1.DELETE("/:id", DeleteTodo)
-	// }
-	// router.Run()
-	//point := lib.Point{0, 0}
-	//ship := ship.CarrierShip{&point, lib.HORIZONTAL}
-	//fmt.Println(ship.Location.X, ship.Orientation)
-	//ship := domain.Ship{Type: lib.CARRIER, Quantity: 1}
-	//shipJson, _ := json.Marshal(&ship)
-	//fmt.Println(string(shipJson))
-	//
-	//ships := []*domain.Ship{&ship, &ship}
-	//shipsJson, _ := json.Marshal(&ship)
-	//fmt.Println(string(shipsJson))
-	//
-	//
-	//gameRule := domain.GameRule{BoardWidth: 20, BoardHeight: 8, Ships: ships}
-	//invitation := domain.GameInvitationRQ{SessionId: "xyz", GameRule: &gameRule}
-	//jsonInvitation, _ := json.Marshal(invitation)
-	//fmt.Println(string(jsonInvitation))
-
 	router := gin.Default()
 	paladin := router.Group("/paladin")
 	{

@@ -5,13 +5,13 @@ import (
 )
 
 type CarrierShip struct {
-	Location *lib.Point
+	Location    *lib.Point
 	Orientation int
 }
 
 func (s *CarrierShip) GetPositions() ([]*lib.Point) {
 	positions := make([]*lib.Point, 0)
-	positions = append(positions, &lib.Point{s.Location.X, s.Location.Y})
+	positions = append(positions, &lib.Point{X: s.Location.X, Y: s.Location.Y})
 	return positions
 }
 
@@ -20,12 +20,8 @@ func (s *CarrierShip) ConflictWith(other *Ship) (bool) {
 }
 
 func (s *CarrierShip) IsValid(boardW int, boardH int) (bool) {
-	if (s.Location.X < 0 || s.Location.Y < 0) {
+	if s.Location.X < 0 || s.Location.Y < 0 {
 		return false
-	}
-
-	if (s.Orientation == lib.HORIZONTAL) {
-		
 	}
 
 	return true

@@ -1,32 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"github.com/jinzhu/gorm"
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/ship"
+	"github.com/anhtuan29592/battleship-ai/context"
 )
 
 func main() {
-
-	// router := gin.Default()
-
-	// v1 := router.Group("/paladin")
-	// {
-	// 	v1.POST("/", CreateTodo)
-	// 	v1.GET("/", FetchAllTodo)
-	// 	v1.GET("/:id", FetchSingleTodo)
-	// 	v1.PUT("/:id", UpdateTodo)
-	// 	v1.DELETE("/:id", DeleteTodo)
-	// }
-	// router.Run()
-	point := lib.Point{0, 0}
-	ship := ship.CarrierShip{&point, lib.HORIZONTAL}
-	fmt.Println(ship.Position.X, ship.Orientation)
-
+	router := gin.Default()
+	paladin := router.Group("/paladin")
+	{
+		paladin.POST("/invite", context.Invite)
+	}
+	router.Run(":8080")
 }
 
 type Todo struct {

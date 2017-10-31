@@ -12,3 +12,10 @@ const (
 	CRUISER     = "CA"
 	DESTROYER   = "DD"
 )
+
+const (
+	UP    = 1
+	DOWN  = -1
+	LEFT  = -2
+	RIGHT = 2
+)

@@ -1,4 +1,4 @@
-package lib
+package constant
 
 const (
 	HORIZONTAL = 0

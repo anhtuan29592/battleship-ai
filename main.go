@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"github.com/jinzhu/gorm"
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/ship"
+	"github.com/anhtuan29592/battleship-ai/context"
 )
 
 func main() {
@@ -23,10 +21,29 @@ func main() {
 	// 	v1.DELETE("/:id", DeleteTodo)
 	// }
 	// router.Run()
-	point := lib.Point{0, 0}
-	ship := ship.CarrierShip{&point, lib.HORIZONTAL}
-	fmt.Println(ship.Position.X, ship.Orientation)
+	//point := lib.Point{0, 0}
+	//ship := ship.CarrierShip{&point, lib.HORIZONTAL}
+	//fmt.Println(ship.Location.X, ship.Orientation)
+	//ship := domain.Ship{Type: lib.CARRIER, Quantity: 1}
+	//shipJson, _ := json.Marshal(&ship)
+	//fmt.Println(string(shipJson))
+	//
+	//ships := []*domain.Ship{&ship, &ship}
+	//shipsJson, _ := json.Marshal(&ship)
+	//fmt.Println(string(shipsJson))
+	//
+	//
+	//gameRule := domain.GameRule{BoardWidth: 20, BoardHeight: 8, Ships: ships}
+	//invitation := domain.GameInvitationRQ{SessionId: "xyz", GameRule: &gameRule}
+	//jsonInvitation, _ := json.Marshal(invitation)
+	//fmt.Println(string(jsonInvitation))
 
+	router := gin.Default()
+	paladin := router.Group("/paladin")
+	{
+		paladin.POST("/invite", context.Invite)
+	}
+	router.Run(":8080")
 }
 
 type Todo struct {

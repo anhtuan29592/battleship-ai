@@ -1,6 +1,6 @@
 package domain
 
-type GameInviteRQ struct {
+type GameInvitationRQ struct {
 	SessionId string `json:"sessionId"`
 	GameRule *GameRule `json:"gameRule"`
 }

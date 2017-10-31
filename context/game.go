@@ -3,16 +3,18 @@ package context
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/anhtuan29592/battleship-ai/domain"
-	"fmt"
+	"github.com/anhtuan29592/battleship-ai/lib"
+	stg "github.com/anhtuan29592/battleship-ai/lib/strategy"
 	"net/http"
-	"encoding/json"
 )
+
+var strategy *stg.AgentSmith
 
 func Start(c *gin.Context) {
 	var request domain.GameStartRQ
 	if c.Bind(&request) == nil {
-		jsonRQ, _ := json.MarshalIndent(&request, "", "\t")
-		fmt.Println(string(jsonRQ))
+		strategy = new(stg.AgentSmith)
+		strategy.StartGame(lib.Size{8,20})
 		c.JSON(http.StatusOK, domain.GameStartRS{})
 	}
 }
@@ -20,8 +22,6 @@ func Start(c *gin.Context) {
 func Turn(c *gin.Context) {
 	var request domain.TurnRQ
 	if c.Bind(&request) == nil {
-		jsonRQ, _ := json.MarshalIndent(&request, "", "\t")
-		fmt.Println(string(jsonRQ))
-		c.JSON(http.StatusOK, domain.TurnRS{})
+		c.JSON(http.StatusOK, strategy.GetShot())
 	}
 }

@@ -1,8 +1,8 @@
-package opponent
+package strategy
 
 import "github.com/anhtuan29592/battleship-ai/lib"
 
-type Opponent interface {
+type Strategy interface {
 	StartGame(boardSize lib.Size)
 	ArrangeShip()
 	GetShot() (point lib.Point)

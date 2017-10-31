@@ -9,18 +9,18 @@ type CarrierShip struct {
 	Orientation int
 }
 
-func (s *CarrierShip) GetPositions() ([]*lib.Point) {
+func (self *CarrierShip) GetPositions() ([]*lib.Point) {
 	positions := make([]*lib.Point, 0)
-	positions = append(positions, &lib.Point{X: s.Location.X, Y: s.Location.Y})
+	positions = append(positions, &lib.Point{X: self.Location.X, Y: self.Location.Y})
 	return positions
 }
 
-func (s *CarrierShip) ConflictWith(other *Ship) (bool) {
+func (self *CarrierShip) ConflictWith(other *Ship) (bool) {
 	return false
 }
 
-func (s *CarrierShip) IsValid(boardW int, boardH int) (bool) {
-	if s.Location.X < 0 || s.Location.Y < 0 {
+func (self *CarrierShip) IsValid(boardW int, boardH int) (bool) {
+	if self.Location.X < 0 || self.Location.Y < 0 {
 		return false
 	}
 

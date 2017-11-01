@@ -1,10 +1,10 @@
 package context
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/anhtuan29592/battleship-ai/domain"
 	"github.com/anhtuan29592/battleship-ai/lib"
 	stg "github.com/anhtuan29592/battleship-ai/lib/strategy"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -14,7 +14,7 @@ func Start(c *gin.Context) {
 	var request domain.GameStartRQ
 	if c.Bind(&request) == nil {
 		strategy = new(stg.AgentSmith)
-		strategy.StartGame(lib.Size{8,20})
+		strategy.StartGame(lib.Size{4, 4})
 		c.JSON(http.StatusOK, domain.GameStartRS{})
 	}
 }

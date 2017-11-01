@@ -3,7 +3,7 @@ package constant
 type Orientation int
 
 const (
-	HORIZONTAL Orientation = iota + 1
+	HORIZONTAL Orientation = iota
 	VERTICAL
 )
 
@@ -28,10 +28,27 @@ const (
 	DESTROYER            = "DD"
 )
 
+func (s ShipType) String() string {
+	switch s {
+	case CARRIER:
+		return "CV"
+	case BATTLE_SHIP:
+		return "BB"
+	case OIL_RIG:
+		return "OR"
+	case CRUISER:
+		return "CA"
+	case DESTROYER:
+		return "DD"
+	default:
+		return ""
+	}
+}
+
 type Direction int
 
 const (
-	UP Direction = iota + 1
+	UP Direction = iota
 	DOWN
 	LEFT
 	RIGHT

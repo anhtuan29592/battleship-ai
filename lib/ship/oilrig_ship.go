@@ -5,22 +5,22 @@ import (
 	"github.com/anhtuan29592/battleship-ai/lib/util"
 )
 
-type CarrierShip struct {
+type OilRigShip struct {
 	Location    *lib.Point
 	Orientation constant.Orientation
 }
 
-func (c *CarrierShip) GetPositions() []*lib.Point {
+func (c *OilRigShip) GetPositions() []*lib.Point {
 	positions := make([]*lib.Point, 0)
 	positions = append(positions, &lib.Point{X: c.Location.X, Y: c.Location.Y})
 	return positions
 }
 
-func (c *CarrierShip) ConflictWith(other *Ship) bool {
+func (c *OilRigShip) ConflictWith(other *Ship) bool {
 	return false
 }
 
-func (c *CarrierShip) IsValid(boardSize lib.Size) bool {
+func (c *OilRigShip) IsValid(boardSize lib.Size) bool {
 	if c.Location.X < 0 || c.Location.Y < 0 {
 		return false
 	}
@@ -28,10 +28,10 @@ func (c *CarrierShip) IsValid(boardSize lib.Size) bool {
 	return true
 }
 
-func (c *CarrierShip) UpdateLocation(orientation constant.Orientation, point *lib.Point) {
+func (c *OilRigShip) UpdateLocation(orientation constant.Orientation, point *lib.Point) {
 	c.Location = point
 }
 
-func (c *CarrierShip) GetType() constant.ShipType {
-	return constant.CARRIER
+func (c *OilRigShip) GetType() constant.ShipType {
+	return constant.OIL_RIG
 }

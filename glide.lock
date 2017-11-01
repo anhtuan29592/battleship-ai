@@ -1,6 +1,10 @@
-hash: d915d79ee88bc99fd71e94b96be268854bda61ab3b28766ab39a96355abc5532
-updated: 2017-10-30T19:20:09.133945674+07:00
+hash: b2c613f55a673ef9de74e11baec07203ad048875691235474941a10fc60c594e
+updated: 2017-11-01T12:50:56.552926739+07:00
 imports:
+- name: github.com/facebookgo/inject
+  version: cc1aa653e50f6a9893bcaef89e673e5b24e1e97b
+- name: github.com/facebookgo/structtag
+  version: 217e25fb96916cc60332e399c9aa63f5c422ceed
 - name: github.com/gin-contrib/sse
   version: 22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae
 - name: github.com/gin-gonic/gin
@@ -8,6 +12,14 @@ imports:
   subpackages:
   - binding
   - render
+- name: github.com/go-redis/redis
+  version: 75ca3985346e77a5db85d10f6abac350acbf9a73
+  subpackages:
+  - internal
+  - internal/consistenthash
+  - internal/hashtag
+  - internal/pool
+  - internal/proto
 - name: github.com/golang/protobuf
   version: 1643683e1b54a9e88ad26d98f81400c8c9d9f4f9
   subpackages:

@@ -1,4 +1,6 @@
 package: github.com/anhtuan29592/battleship-ai
 import:
 - package: github.com/gin-gonic/gin
-- package: github.com/jinzhu/gorm
+- package: github.com/go-redis/redis
+- package: github.com/facebookgo/inject
+- package: github.com/facebookgo/structtag

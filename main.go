@@ -13,6 +13,9 @@ func main() {
 	paladin := router.Group("/paladin")
 	{
 		paladin.POST("/invite", context.Invite)
+		paladin.POST("/start", context.Start)
+		paladin.POST("/turn", context.Turn)
+		paladin.POST("/notify", context.NotifyResult)
 	}
 	router.Run(":8080")
 }

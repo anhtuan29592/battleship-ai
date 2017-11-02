@@ -12,18 +12,12 @@ import (
 type AgentSmith struct {
 	Shots             []lib.Point
 	HitShots          []lib.Point
-	ShotPatterns      []ShotPattern
+	ShotPatterns      []lib.Point
 	BoardSize         lib.Size
 	ShotFront         *lib.Point
 	ShotRear          *lib.Point
 	LastShotDirection constant.Direction
 	MissCount         int
-	//Boards            [][]string
-}
-
-type ShotPattern struct {
-	Location lib.Point
-	Score    int
 }
 
 func (a *AgentSmith) GetGameState() lib.GameState {
@@ -82,11 +76,9 @@ func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
 	a.HitShots = append(a.HitShots, point)
 	a.MissCount = 0
 	a.ShotFront = &point
-	//a.Boards[point.X][point.Y] = constant.HIT
 	if a.ShotRear == nil {
 		a.ShotRear = &point
 	}
-
 	a.LastShotDirection = a.GetDirection(*a.ShotFront, *a.ShotRear)
 
 	log.Printf("hit front %s", a.ShotFront)
@@ -101,13 +93,10 @@ func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
 
 func (a *AgentSmith) ShotMiss(point lib.Point) {
 	a.MissCount++
-	//a.Boards[point.X][point.Y] = constant.MISS
-	if a.MissCount == 4 {
+	if a.MissCount == 12 {
 		a.ShotFront = nil
 		a.ShotRear = nil
 		a.MissCount = 0
-	} else {
-		a.LastShotDirection = a.LastShotDirection.Invert()
 	}
 }
 
@@ -134,17 +123,12 @@ func (a *AgentSmith) Validate(ships []ship.Ship) bool {
 }
 
 func (a *AgentSmith) SetUpShotPattern(boardSize lib.Size) {
-	a.ShotPatterns = make([]ShotPattern, 0)
-	//a.Boards = make([][]string, boardSize.Width)
-	//for i := 0; i < boardSize.Width; i++ {
-	//	a.Boards[i] = make([]string, boardSize.Height)
-	//}
+	a.ShotPatterns = make([]lib.Point, 0)
 
 	for r := 0; r < boardSize.Height; r++ {
 		for c := 0; c < boardSize.Width; c++ {
-			//a.Boards[c][r] = constant.UNKNOWN
 			if (r+c)%2 == 0 {
-				a.ShotPatterns = append(a.ShotPatterns, ShotPattern{lib.Point{X: c, Y: r}, a.GetScore(c, r)})
+				a.ShotPatterns = append(a.ShotPatterns, lib.Point{X: c, Y: r})
 			}
 		}
 	}
@@ -170,10 +154,8 @@ func (a *AgentSmith) FireAroundPoint(p lib.Point) lib.Point {
 
 	testShot := a.FireDirected(a.LastShotDirection, p)
 	if !a.ValidShot(testShot) {
-		a.LastShotDirection = a.LastShotDirection.Invert()
+		testShot = a.FireDirected(a.LastShotDirection.Invert(), p)
 	}
-
-	testShot = a.FireDirected(a.LastShotDirection, p)
 
 	if !a.ValidShot(testShot) {
 		testShot = a.FireDirected(constant.UP, p)
@@ -218,11 +200,8 @@ func (a *AgentSmith) FireRandom() lib.Point {
 	var point lib.Point
 	for {
 		if len(a.ShotPatterns) > 0 {
-			//sort.Slice(a.ShotPatterns, func(i, j int) bool {
-			//	return a.ShotPatterns[i].Score > a.ShotPatterns[j].Score
-			//})
 			i := rand.Intn(len(a.ShotPatterns))
-			point = a.ShotPatterns[i].Location
+			point = a.ShotPatterns[i]
 			a.ShotPatterns = append(a.ShotPatterns[:i], a.ShotPatterns[i+1:]...)
 		} else {
 			for {

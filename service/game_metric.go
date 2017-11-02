@@ -74,20 +74,3 @@ func (g *GameMetric) ShotResult(result domain.ShotResult) {
 	}
 }
 
-func (g *GameMetric) Validate(boardSize lib.Size, ships []ship.Ship) bool {
-	for i := 0; i < len(ships); i++ {
-		if !ships[i].IsValid(boardSize) {
-			return false
-		}
-	}
-
-	for i := 0; i < len(ships); i++ {
-		for j := i + 1; j < len(ships); j++ {
-			if ships[i].ConflictWith(ships[j]) {
-				return false
-			}
-		}
-	}
-
-	return true
-}

@@ -1,6 +1,6 @@
 package lib
 
 type Size struct {
-	Witdh  int
+	Width  int
 	Height int
 }

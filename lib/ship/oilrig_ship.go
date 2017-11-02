@@ -6,30 +6,33 @@ import (
 )
 
 type OilRigShip struct {
-	Location    *lib.Point
-	Orientation constant.Orientation
 }
 
-func (c *OilRigShip) GetPositions() []*lib.Point {
-	positions := make([]*lib.Point, 0)
-	positions = append(positions, &lib.Point{X: c.Location.X, Y: c.Location.Y})
-	return positions
+func (c *OilRigShip) GetSize(orientation constant.Orientation) lib.Size {
+	switch orientation {
+	case constant.HORIZONTAL:
+		return lib.Size{Width: 2, Height: 1}
+	case constant.VERTICAL:
+		return lib.Size{Width: 1, Height: 2}
+	default:
+		return lib.Size{Width: 0, Height: 0}
+	}
 }
 
-func (c *OilRigShip) ConflictWith(other *Ship) bool {
-	return false
-}
-
-func (c *OilRigShip) IsValid(boardSize lib.Size) bool {
-	if c.Location.X < 0 || c.Location.Y < 0 {
-		return false
+func (c *OilRigShip) GetPositions(location lib.Point, orientation constant.Orientation) []lib.Point {
+	positions := make([]lib.Point, 0)
+	size := c.GetSize(orientation)
+	if orientation == constant.HORIZONTAL {
+		for i := 0; i < size.Width; i++ {
+			positions = append(positions, lib.Point{X: location.X + i, Y: location.Y})
+		}
+	} else {
+		for i := 0; i < size.Height; i++ {
+			positions = append(positions, lib.Point{X: location.X, Y: location.Y + i})
+		}
 	}
 
-	return true
-}
-
-func (c *OilRigShip) UpdateLocation(orientation constant.Orientation, point *lib.Point) {
-	c.Location = point
+	return positions
 }
 
 func (c *OilRigShip) GetType() constant.ShipType {

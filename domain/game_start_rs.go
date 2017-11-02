@@ -1,5 +1,5 @@
 package domain
 
 type GameStartRS struct {
-	Ships []*ShipPosition `json:"ships"`
+	Ships []ShipPosition `json:"ships"`
 }

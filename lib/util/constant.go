@@ -68,3 +68,12 @@ func (d Direction) String() string {
 		return ""
 	}
 }
+
+const (
+	AGENT_SMITH_STRATEGY = "ASM"
+)
+
+const (
+	HIT = "HIT"
+	MISS = "MISS"
+)

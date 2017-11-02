@@ -27,9 +27,10 @@ func (g *GameContext) Start(context *gin.Context) {
 	}
 }
 
-func (*GameContext) Turn(c *gin.Context) {
+func (g *GameContext) Turn(context *gin.Context) {
 	var request domain.TurnRQ
-	if c.Bind(&request) == nil {
-		c.JSON(http.StatusOK, gin.H{"status": true})
+	if context.Bind(&request) == nil {
+		response, _ := g.GameService.HandleTurn(context, request)
+		context.JSON(http.StatusOK, response)
 	}
 }

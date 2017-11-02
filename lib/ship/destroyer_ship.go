@@ -6,64 +6,33 @@ import (
 )
 
 type DestroyerShip struct {
-	Location    *lib.Point
-	Orientation constant.Orientation
 }
 
-func (c *DestroyerShip) GetPositions() []*lib.Point {
-	positions := make([]*lib.Point, 0)
-	if c.Orientation == constant.HORIZONTAL {
-		for i := 0; i < 2; i++ {
-			positions = append(positions, &lib.Point{X: c.Location.X + i, Y: c.Location.Y})
+func (c *DestroyerShip) GetSize(orientation constant.Orientation) lib.Size {
+	switch orientation {
+	case constant.HORIZONTAL:
+		return lib.Size{Width: 2, Height: 1}
+	case constant.VERTICAL:
+		return lib.Size{Width: 1, Height: 2}
+	default:
+		return lib.Size{Width: 0, Height: 0}
+	}
+}
+
+func (c *DestroyerShip) GetPositions(location lib.Point, orientation constant.Orientation) []lib.Point {
+	positions := make([]lib.Point, 0)
+	size := c.GetSize(orientation)
+	if orientation == constant.HORIZONTAL {
+		for i := 0; i < size.Width; i++ {
+			positions = append(positions, lib.Point{X: location.X + i, Y: location.Y})
 		}
 	} else {
-		for i := 0; i < 2; i++ {
-			positions = append(positions, &lib.Point{X: c.Location.X, Y: c.Location.Y + i})
+		for i := 0; i < size.Height; i++ {
+			positions = append(positions, lib.Point{X: location.X, Y: location.Y + i})
 		}
 	}
 
 	return positions
-}
-
-func (c *DestroyerShip) ConflictWith(other *Ship) bool {
-	otherPositions := other.ShipAction.GetPositions()
-	myPositions := c.GetPositions()
-
-	for i := 0; i < len(otherPositions); i++ {
-		for j := 0; j < len(myPositions); i++ {
-			if otherPositions[i].X == myPositions[j].X && otherPositions[i].Y == myPositions[j].Y {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func (c *DestroyerShip) IsValid(boardSize lib.Size) bool {
-	if c.Location == nil {
-		return false
-	}
-
-	if c.Location.X < 0 || c.Location.Y < 0 {
-		return false
-	}
-
-	if c.Orientation == constant.HORIZONTAL {
-		if c.Location.X >= boardSize.Witdh || c.Location.X + 2 > boardSize.Witdh {
-			return false
-		}
-	} else {
-		if c.Location.Y >= boardSize.Height || c.Location.Y + 2 > boardSize.Height {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (c *DestroyerShip) UpdateLocation(orientation constant.Orientation, point *lib.Point) {
-	c.Location = point
 }
 
 func (c *DestroyerShip) GetType() constant.ShipType {

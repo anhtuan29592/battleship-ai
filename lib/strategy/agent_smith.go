@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"github.com/anhtuan29592/battleship-ai/lib/ship"
 	"encoding/json"
+	"log"
 )
 
 type AgentSmith struct {
@@ -75,12 +76,16 @@ func (a *AgentSmith) GetShot() (point lib.Point) {
 }
 
 func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
+	log.Printf("hit location %s, sunk %s", point, sunk)
 	a.HitShots = append(a.HitShots, point)
 	a.MissCount = 0
 	a.ShotFront = &point
 	if a.ShotRear == nil {
 		a.ShotRear = &point
 	}
+
+	log.Printf("hit front %s", a.ShotFront)
+	log.Printf("hit rear %s", a.ShotRear)
 
 	if sunk {
 		a.ShotFront = nil

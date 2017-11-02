@@ -21,6 +21,8 @@ func (n *NotifyService) HandleNotification(request domain.NotifyRQ) (domain.Noti
 		err := n.CacheService.Get(cacheKey, gameState)
 		if err != nil {
 			log.Printf("couldn't get game state info of session %s, error = %s", request.SessionId, err)
+			log.Print("retry...")
+			n.CacheService.Get(cacheKey, gameState)
 		}
 
 		gameMetric.LoadGameState(*gameState)

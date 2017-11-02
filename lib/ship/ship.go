@@ -44,31 +44,19 @@ func (s *Ship) ConflictWith(other Ship) bool {
 	return false
 }
 
-func (s *Ship) Near(other Ship) bool {
-	otherSize := other.GetSize()
-	mySize := s.GetSize()
+func (s *Ship) Touch(other Ship, touchDistance int) bool {
+	otherPositions := other.GetPositions()
+	myPositions := s.GetPositions()
 
-	// UPPER
-	if other.Location.Y < s.Location.Y {
-		return !(s.Location.Y - (other.Location.Y + otherSize.Height) <= 3)
+	for i := 0; i < len(otherPositions); i++ {
+		for j := 0; j < len(myPositions); j++ {
+			if Abs(otherPositions[i].X - myPositions[j].X) - 1 < touchDistance ||  Abs(otherPositions[i].Y - myPositions[j].Y) - 1 < touchDistance {
+				return false
+			}
+		}
 	}
 
-	// LOWER
-	if other.Location.Y > s.Location.Y {
-		return !(other.Location.Y - (s.Location.Y + mySize.Height) <= 3)
-	}
-
-	// LEFT
-	if other.Location.X < s.Location.X {
-		return !(s.Location.X - (other.Location.X + otherSize.Width) <= 3)
-	}
-
-	// RIGHT
-	if other.Location.X > s.Location.X {
-		return !(other.Location.X - (s.Location.X + mySize.Width) <= 3)
-	}
-
-	return false
+	return true
 }
 
 func (s *Ship) UpdateLocation(orientation constant.Orientation, point lib.Point) {
@@ -96,4 +84,11 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 	}
 
 	return true
+}
+
+func Abs(value int) int {
+	if value < 0 {
+		return -value
+	}
+	return value
 }

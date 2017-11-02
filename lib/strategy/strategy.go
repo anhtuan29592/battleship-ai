@@ -7,7 +7,7 @@ import (
 
 type Strategy interface {
 	StartGame(boardSize lib.Size)
-	ArrangeShips(ships []ship.Ship) []ship.Ship
+	ArrangeShips(ships []ship.Ship, touchDistance int) []ship.Ship
 	GetShot() (point lib.Point)
 	ShotHit(point lib.Point, sunk bool)
 	ShotMiss(point lib.Point)

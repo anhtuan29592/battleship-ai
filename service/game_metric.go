@@ -8,6 +8,8 @@ import (
 	"github.com/anhtuan29592/battleship-ai/lib/strategy"
 )
 
+var DEFAULT_TOUCH_DISTANCE = 6
+
 type GameMetric struct {
 	GameAI strategy.GameAI
 }
@@ -59,7 +61,7 @@ func (g *GameMetric) CreateShips(quantities []domain.ShipQuantity) []ship.Ship {
 }
 
 func (g *GameMetric) ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
-	return g.GameAI.Strategy.ArrangeShips(ships)
+	return g.GameAI.Strategy.ArrangeShips(ships, DEFAULT_TOUCH_DISTANCE)
 }
 
 func (g *GameMetric) GetShot() lib.Point {

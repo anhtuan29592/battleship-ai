@@ -89,7 +89,8 @@ const (
 )
 
 const (
-	HIT = "HIT"
-	MISS = "MISS"
-	UNKNOWN = ""
+	HIT 	= "HIT"
+	MISS 	= "MISS"
+	CLEAR 	= "CLEAR"
+	SUNK 	= "SUNK"
 )

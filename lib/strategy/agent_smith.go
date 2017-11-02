@@ -45,19 +45,58 @@ func (a *AgentSmith) StartGame(boardSize lib.Size) {
 	a.SetUpShotPattern(boardSize)
 }
 
-func (a *AgentSmith) ArrangeShips(ships []ship.Ship) []ship.Ship {
-	if a.Validate(ships) {
-		return ships
+func (a *AgentSmith) ArrangeShips(ships []ship.Ship, touchDistance int) []ship.Ship {
+
+	hasConflict := func () bool {
+		for i := 0; i < len(ships) - 1; i++ {
+			for j := i + 1; j < len(ships); j++ {
+				if ships[i].ConflictWith(ships[j]) {
+					return true
+				}
+			}
+		}
+		return false
 	}
 
-	for i := 0; i < len(ships); i++ {
-		x := rand.Intn(a.BoardSize.Width - 1)
-		y := rand.Intn(a.BoardSize.Height - 1)
-		orientation := constant.Orientation(rand.Intn(2))
-		ships[i].UpdateLocation(orientation, lib.Point{X: x, Y: y})
+	validTouch := func () int {
+		count := 0
+		for i := 0; i < len(ships) - 1; i++ {
+			for j := i + 1; j < len(ships); j++ {
+				if ships[i].Touch(ships[j], touchDistance) {
+					count++
+				}
+			}
+		}
+		return count
 	}
 
-	return a.ArrangeShips(ships)
+	validOnBoard := func () bool {
+		for i := 0; i < len(ships); i++ {
+			if !ships[i].IsValid(a.BoardSize) {
+				return false
+			}
+		}
+		return true
+	}
+
+	for {
+		if !hasConflict() && validOnBoard() {
+			break
+		}
+
+		for i := 0; i < len(ships); i++ {
+			x := rand.Intn(a.BoardSize.Width - 1)
+			y := rand.Intn(a.BoardSize.Height - 1)
+			orientation := constant.Orientation(rand.Intn(2))
+			ships[i].UpdateLocation(orientation, lib.Point{X: x, Y: y})
+		}
+	}
+
+	if validTouch() < len(ships) {
+		return a.ArrangeShips(ships, touchDistance-1)	
+	}
+
+	return ships
 }
 
 func (a *AgentSmith) GetShot() (point lib.Point) {
@@ -98,28 +137,6 @@ func (a *AgentSmith) ShotMiss(point lib.Point) {
 		a.ShotRear = nil
 		a.MissCount = 0
 	}
-}
-
-func (a *AgentSmith) Validate(ships []ship.Ship) bool {
-	for i := 0; i < len(ships); i++ {
-		if !ships[i].IsValid(a.BoardSize) {
-			return false
-		}
-	}
-
-	for i := 0; i < len(ships); i++ {
-		for j := i + 1; j < len(ships); j++ {
-			if ships[i].ConflictWith(ships[j]) {
-				return false
-			}
-
-			if ships[i].Near(ships[j]) {
-				return false
-			}
-		}
-	}
-
-	return true
 }
 
 func (a *AgentSmith) SetUpShotPattern(boardSize lib.Size) {
@@ -224,33 +241,6 @@ func (a *AgentSmith) FireRandom() lib.Point {
 	return point
 }
 
-func (a *AgentSmith) GetScore(x int, y int) int {
-
-	score := 0
-
-	// Border
-	if 0 <= x && x <= 2 || a.BoardSize.Width-1-2 <= x && x <= a.BoardSize.Width-1 {
-		score++
-	}
-
-	// Border
-	if 0 <= y && y <= 2 || a.BoardSize.Height-1-2 <= y && y <= a.BoardSize.Height-1 {
-		score++
-	}
-
-	// Center
-	if a.BoardSize.Width/2-2 <= x && x <= a.BoardSize.Width/2+2 {
-		score += 2
-	}
-
-	// Center
-	if a.BoardSize.Height/2-2 <= y && y <= a.BoardSize.Height/2+2 {
-		score += 2
-	}
-
-	return score
-}
-
 func (a *AgentSmith) ValidShot(p lib.Point) bool {
 	for i := 0; i < len(a.Shots); i++ {
 		s := a.Shots[i]
@@ -294,66 +284,3 @@ func (a *AgentSmith) GetDirection(p1 lib.Point, p2 lib.Point) constant.Direction
 func (a *AgentSmith) UpdatePattern() {
 
 }
-
-//func (a *AgentSmith) OpenSpaces(x int, y int) int {
-//	ctr := 0
-//
-//	// spaces to the left
-//	pX := x - 1
-//	pY := y
-//
-//	for {
-//		if pX < 0 {
-//			break
-//		}
-//
-//		if a.Boards[pX][pY] == constant.UNKNOWN {
-//			ctr++
-//			pX--
-//		}
-//	}
-//
-//	// spaces to the right
-//	pX = x + 1
-//	pY = y
-//	for {
-//		if pX >= a.BoardSize.Width {
-//			break
-//		}
-//
-//		if a.Boards[pX][pY] == constant.UNKNOWN {
-//			ctr++
-//			pX++
-//		}
-//	}
-//
-//	// spaces to the top
-//	pX = x
-//	pY = y - 1
-//	for {
-//		if pY < 0 {
-//			break
-//		}
-//
-//		if a.Boards[pX][pY] == constant.UNKNOWN {
-//			ctr++
-//			pY--
-//		}
-//	}
-//
-//	// spaces to the bottom
-//	pX = x
-//	pY = y + 1
-//	for {
-//		if pY >= a.BoardSize.Height {
-//			break
-//		}
-//
-//		if a.Boards[pX][pY] == constant.UNKNOWN {
-//			ctr++
-//			pY++
-//		}
-//	}
-//
-//	return ctr
-//}

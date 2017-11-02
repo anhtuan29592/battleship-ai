@@ -49,7 +49,7 @@ func (a *AgentSmith) StartGame(boardSize lib.Size) {
 }
 
 func (a *AgentSmith) ArrangeShips(ships []ship.Ship) []ship.Ship {
-	if a.Validate(a.BoardSize, ships) {
+	if a.Validate(ships) {
 		return ships
 	}
 
@@ -98,9 +98,9 @@ func (a *AgentSmith) ShotMiss(point lib.Point) {
 	}
 }
 
-func (a *AgentSmith) Validate(boardSize lib.Size, ships []ship.Ship) bool {
+func (a *AgentSmith) Validate(ships []ship.Ship) bool {
 	for i := 0; i < len(ships); i++ {
-		if !ships[i].IsValid(boardSize) {
+		if !ships[i].IsValid(a.BoardSize) {
 			return false
 		}
 	}

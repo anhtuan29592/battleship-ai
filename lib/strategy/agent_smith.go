@@ -10,13 +10,15 @@ import (
 )
 
 type AgentSmith struct {
-	Shots        []lib.Point
-	HitShots     []lib.Point
-	ShotPatterns []ShotPattern
-	BoardSize    lib.Size
-	ShotFront    *lib.Point
-	ShotRear     *lib.Point
-	MissCount    int
+	Shots             []lib.Point
+	HitShots          []lib.Point
+	ShotPatterns      []ShotPattern
+	BoardSize         lib.Size
+	ShotFront         *lib.Point
+	ShotRear          *lib.Point
+	LastShotDirection constant.Direction
+	MissCount         int
+	//Boards            [][]string
 }
 
 type ShotPattern struct {
@@ -80,9 +82,12 @@ func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
 	a.HitShots = append(a.HitShots, point)
 	a.MissCount = 0
 	a.ShotFront = &point
+	//a.Boards[point.X][point.Y] = constant.HIT
 	if a.ShotRear == nil {
 		a.ShotRear = &point
 	}
+
+	a.LastShotDirection = a.GetDirection(*a.ShotFront, *a.ShotRear)
 
 	log.Printf("hit front %s", a.ShotFront)
 	log.Printf("hit rear %s", a.ShotRear)
@@ -96,10 +101,13 @@ func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
 
 func (a *AgentSmith) ShotMiss(point lib.Point) {
 	a.MissCount++
-	if a.MissCount == 6 {
+	//a.Boards[point.X][point.Y] = constant.MISS
+	if a.MissCount == 4 {
 		a.ShotFront = nil
 		a.ShotRear = nil
 		a.MissCount = 0
+	} else {
+		a.LastShotDirection = a.LastShotDirection.Invert()
 	}
 }
 
@@ -115,6 +123,10 @@ func (a *AgentSmith) Validate(ships []ship.Ship) bool {
 			if ships[i].ConflictWith(ships[j]) {
 				return false
 			}
+
+			if ships[i].Near(ships[j]) {
+				return false
+			}
 		}
 	}
 
@@ -123,13 +135,20 @@ func (a *AgentSmith) Validate(ships []ship.Ship) bool {
 
 func (a *AgentSmith) SetUpShotPattern(boardSize lib.Size) {
 	a.ShotPatterns = make([]ShotPattern, 0)
-	for y := 0; y < boardSize.Height; y++ {
-		for x := 0; x < boardSize.Width; x++ {
-			if (x+y)%2 == 0 {
-				a.ShotPatterns = append(a.ShotPatterns, ShotPattern{lib.Point{X: x, Y: y}, a.GetScore(x, y)})
+	//a.Boards = make([][]string, boardSize.Width)
+	//for i := 0; i < boardSize.Width; i++ {
+	//	a.Boards[i] = make([]string, boardSize.Height)
+	//}
+
+	for r := 0; r < boardSize.Height; r++ {
+		for c := 0; c < boardSize.Width; c++ {
+			//a.Boards[c][r] = constant.UNKNOWN
+			if (r+c)%2 == 0 {
+				a.ShotPatterns = append(a.ShotPatterns, ShotPattern{lib.Point{X: c, Y: r}, a.GetScore(c, r)})
 			}
 		}
 	}
+
 }
 
 func (*AgentSmith) FireDirected(direction constant.Direction, target lib.Point) lib.Point {
@@ -148,7 +167,18 @@ func (*AgentSmith) FireDirected(direction constant.Direction, target lib.Point) 
 }
 
 func (a *AgentSmith) FireAroundPoint(p lib.Point) lib.Point {
-	testShot := a.FireDirected(constant.UP, p)
+
+	testShot := a.FireDirected(a.LastShotDirection, p)
+	if !a.ValidShot(testShot) {
+		a.LastShotDirection = a.LastShotDirection.Invert()
+	}
+
+	testShot = a.FireDirected(a.LastShotDirection, p)
+
+	if !a.ValidShot(testShot) {
+		testShot = a.FireDirected(constant.UP, p)
+	}
+
 	if !a.ValidShot(testShot) {
 		testShot = a.FireDirected(constant.LEFT, p)
 	}
@@ -188,6 +218,9 @@ func (a *AgentSmith) FireRandom() lib.Point {
 	var point lib.Point
 	for {
 		if len(a.ShotPatterns) > 0 {
+			//sort.Slice(a.ShotPatterns, func(i, j int) bool {
+			//	return a.ShotPatterns[i].Score > a.ShotPatterns[j].Score
+			//})
 			i := rand.Intn(len(a.ShotPatterns))
 			point = a.ShotPatterns[i].Location
 			a.ShotPatterns = append(a.ShotPatterns[:i], a.ShotPatterns[i+1:]...)
@@ -213,7 +246,30 @@ func (a *AgentSmith) FireRandom() lib.Point {
 }
 
 func (a *AgentSmith) GetScore(x int, y int) int {
-	return 0
+
+	score := 0
+
+	// Border
+	if 0 <= x && x <= 2 || a.BoardSize.Width-1-2 <= x && x <= a.BoardSize.Width-1 {
+		score++
+	}
+
+	// Border
+	if 0 <= y && y <= 2 || a.BoardSize.Height-1-2 <= y && y <= a.BoardSize.Height-1 {
+		score++
+	}
+
+	// Center
+	if a.BoardSize.Width/2-2 <= x && x <= a.BoardSize.Width/2+2 {
+		score += 2
+	}
+
+	// Center
+	if a.BoardSize.Height/2-2 <= y && y <= a.BoardSize.Height/2+2 {
+		score += 2
+	}
+
+	return score
 }
 
 func (a *AgentSmith) ValidShot(p lib.Point) bool {
@@ -234,3 +290,91 @@ func (a *AgentSmith) ValidShot(p lib.Point) bool {
 
 	return true
 }
+
+func (a *AgentSmith) GetDirection(p1 lib.Point, p2 lib.Point) constant.Direction {
+	if p1.Y == p2.Y {
+		if p1.X >= p2.X {
+			return constant.RIGHT
+		} else {
+			return constant.LEFT
+		}
+	}
+
+	// Vertical
+	if p1.X == p2.X {
+		if p1.Y >= p2.Y {
+			return constant.DOWN
+		} else {
+			return constant.UP
+		}
+	}
+
+	return constant.UP
+}
+
+func (a *AgentSmith) UpdatePattern() {
+
+}
+
+//func (a *AgentSmith) OpenSpaces(x int, y int) int {
+//	ctr := 0
+//
+//	// spaces to the left
+//	pX := x - 1
+//	pY := y
+//
+//	for {
+//		if pX < 0 {
+//			break
+//		}
+//
+//		if a.Boards[pX][pY] == constant.UNKNOWN {
+//			ctr++
+//			pX--
+//		}
+//	}
+//
+//	// spaces to the right
+//	pX = x + 1
+//	pY = y
+//	for {
+//		if pX >= a.BoardSize.Width {
+//			break
+//		}
+//
+//		if a.Boards[pX][pY] == constant.UNKNOWN {
+//			ctr++
+//			pX++
+//		}
+//	}
+//
+//	// spaces to the top
+//	pX = x
+//	pY = y - 1
+//	for {
+//		if pY < 0 {
+//			break
+//		}
+//
+//		if a.Boards[pX][pY] == constant.UNKNOWN {
+//			ctr++
+//			pY--
+//		}
+//	}
+//
+//	// spaces to the bottom
+//	pX = x
+//	pY = y + 1
+//	for {
+//		if pY >= a.BoardSize.Height {
+//			break
+//		}
+//
+//		if a.Boards[pX][pY] == constant.UNKNOWN {
+//			ctr++
+//			pY++
+//		}
+//	}
+//
+//	return ctr
+//}

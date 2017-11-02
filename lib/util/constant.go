@@ -69,6 +69,21 @@ func (d Direction) String() string {
 	}
 }
 
+func (d Direction) Invert() Direction {
+	switch d {
+	case UP:
+		return DOWN
+	case DOWN:
+		return UP
+	case LEFT:
+		return RIGHT
+	case RIGHT:
+		return LEFT
+	default :
+		return UP
+	}
+}
+
 const (
 	AGENT_SMITH_STRATEGY = "ASM"
 )
@@ -76,4 +91,5 @@ const (
 const (
 	HIT = "HIT"
 	MISS = "MISS"
+	UNKNOWN = ""
 )

@@ -6,15 +6,15 @@ import (
 )
 
 var CARRIER_H_POINTS = []lib.Point{
-								{X: 2, Y: 0},
-	{X: 0, Y: 1}, {X: 1, Y: 1}, {X: 2, Y: 1}, {X: 3, Y: 1},
+					{X: 1, Y: 0},
+	{X: 0, Y: 1},   {X: 1, Y: 1}, {X: 2, Y: 1}, {X: 3, Y: 1},
 }
 
 var CARRIER_V_POINTS = []lib.Point{
-	{X: 0, Y: 0},
-	{X: 0, Y: 1}, {X: 1, Y: 1},
-	{X: 0, Y: 2},
-	{X: 0, Y: 3},
+					{X: 1, Y: 0},
+	{X: 0, Y: 1},   {X: 1, Y: 1},
+					{X: 1, Y: 2},
+					{X: 1, Y: 3},
 }
 
 type CarrierShip struct {

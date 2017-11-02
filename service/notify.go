@@ -13,7 +13,7 @@ type NotifyService struct {
 }
 
 func (n *NotifyService) HandleNotification(request domain.NotifyRQ) (domain.NotifyRS, error) {
-	if config.AI_NAME != request.ShotResult.PlayerId {
+	if config.AI_NAME == request.ShotResult.PlayerId {
 		gameMetric := NewGameMetric()
 
 		cacheKey := strings.Join([]string{"gameState", request.SessionId}, "_")

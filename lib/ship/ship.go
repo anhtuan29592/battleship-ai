@@ -30,8 +30,8 @@ func (s *Ship) GetPositions() []lib.Point {
 }
 
 func (s *Ship) ConflictWith(other Ship) bool {
-	otherPositions := other.Action.GetPositions(other.Location, other.Orientation)
-	myPositions := s.Action.GetPositions(s.Location, s.Orientation)
+	otherPositions := other.GetPositions()
+	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -39,6 +39,33 @@ func (s *Ship) ConflictWith(other Ship) bool {
 				return true
 			}
 		}
+	}
+
+	return false
+}
+
+func (s *Ship) Near(other Ship) bool {
+	otherSize := other.GetSize()
+	mySize := s.GetSize()
+
+	// UPPER
+	if other.Location.Y < s.Location.Y {
+		return !(s.Location.Y - (other.Location.Y + otherSize.Height) <= 3)
+	}
+
+	// LOWER
+	if other.Location.Y > s.Location.Y {
+		return !(other.Location.Y - (s.Location.Y + mySize.Height) <= 3)
+	}
+
+	// LEFT
+	if other.Location.X < s.Location.X {
+		return !(s.Location.X - (other.Location.X + otherSize.Width) <= 3)
+	}
+
+	// RIGHT
+	if other.Location.X > s.Location.X {
+		return !(other.Location.X - (s.Location.X + mySize.Width) <= 3)
 	}
 
 	return false
@@ -62,7 +89,7 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 		return false
 	}
 
-	size := s.Action.GetSize(s.Orientation)
+	size := s.GetSize()
 
 	if s.Location.X+size.Width > boardSize.Width || s.Location.Y+size.Height > boardSize.Height {
 		return false

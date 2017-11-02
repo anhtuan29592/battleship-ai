@@ -68,7 +68,7 @@ func (g *GameMetric) GetShot() lib.Point {
 
 func (g *GameMetric) ShotResult(result domain.ShotResult) {
 	if constant.HIT == result.Status {
-		g.GameAI.Strategy.ShotHit(result.Position, &result.RecognizedWholeShip != nil && len(result.RecognizedWholeShip.Positions) > 0)
+		g.GameAI.Strategy.ShotHit(result.Position, false)
 	} else {
 		g.GameAI.Strategy.ShotMiss(result.Position)
 	}

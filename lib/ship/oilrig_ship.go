@@ -2,7 +2,7 @@ package ship
 
 import (
 	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/util"
+	"github.com/anhtuan29592/battleship-ai/lib/constant"
 )
 
 type OilRigShip struct {

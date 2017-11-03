@@ -4,11 +4,9 @@ import (
 	"github.com/anhtuan29592/battleship-ai/domain"
 	"github.com/anhtuan29592/battleship-ai/lib"
 	"github.com/anhtuan29592/battleship-ai/lib/ship"
-	"github.com/anhtuan29592/battleship-ai/lib/util"
+	"github.com/anhtuan29592/battleship-ai/lib/constant"
 	"github.com/anhtuan29592/battleship-ai/lib/strategy"
 )
-
-var DEFAULT_TOUCH_DISTANCE = 6
 
 type GameMetric struct {
 	GameAI strategy.GameAI
@@ -61,7 +59,7 @@ func (g *GameMetric) CreateShips(quantities []domain.ShipQuantity) []ship.Ship {
 }
 
 func (g *GameMetric) ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
-	return g.GameAI.Strategy.ArrangeShips(ships, DEFAULT_TOUCH_DISTANCE)
+	return g.GameAI.Strategy.ArrangeShips(ships, constant.DEFAULT_TOUCH_DISTANCE)
 }
 
 func (g *GameMetric) GetShot() lib.Point {
@@ -70,7 +68,7 @@ func (g *GameMetric) GetShot() lib.Point {
 
 func (g *GameMetric) ShotResult(result domain.ShotResult) {
 	if constant.HIT == result.Status {
-		g.GameAI.Strategy.ShotHit(result.Position, false)
+		g.GameAI.Strategy.ShotHit(result.Position, len(result.RecognizedWholeShip.Positions) > 0)
 	} else {
 		g.GameAI.Strategy.ShotMiss(result.Position)
 	}

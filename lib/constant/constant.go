@@ -5,6 +5,7 @@ type Orientation int
 const (
 	HORIZONTAL Orientation = iota
 	VERTICAL
+	UNKNOWN
 )
 
 func (o Orientation) String() string {
@@ -94,3 +95,5 @@ const (
 	CLEAR 	= "CLEAR"
 	SUNK 	= "SUNK"
 )
+
+const DEFAULT_TOUCH_DISTANCE = 3

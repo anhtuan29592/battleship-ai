@@ -2,6 +2,7 @@ package ship
 
 import (
 	"github.com/anhtuan29592/battleship-ai/lib"
+	"github.com/anhtuan29592/battleship-ai/lib/constant"
 	"github.com/anhtuan29592/battleship-ai/lib/util"
 )
 
@@ -50,7 +51,7 @@ func (s *Ship) Touch(other Ship, touchDistance int) bool {
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
-			if Abs(otherPositions[i].X - myPositions[j].X) - 1 < touchDistance ||  Abs(otherPositions[i].Y - myPositions[j].Y) - 1 < touchDistance {
+			if util.Abs(otherPositions[i].X - myPositions[j].X) - 1 < touchDistance ||  util.Abs(otherPositions[i].Y - myPositions[j].Y) - 1 < touchDistance {
 				return false
 			}
 		}
@@ -84,11 +85,4 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 	}
 
 	return true
-}
-
-func Abs(value int) int {
-	if value < 0 {
-		return -value
-	}
-	return value
 }

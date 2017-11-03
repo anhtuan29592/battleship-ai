@@ -2,7 +2,7 @@ package strategy
 
 import (
 	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/util"
+	"github.com/anhtuan29592/battleship-ai/lib/constant"
 	"math/rand"
 	"github.com/anhtuan29592/battleship-ai/lib/ship"
 	"encoding/json"
@@ -53,6 +53,10 @@ func (a *AgentSmith) ArrangeShips(ships []ship.Ship, touchDistance int) []ship.S
 				if ships[i].ConflictWith(ships[j]) {
 					return true
 				}
+
+				if !ships[i].Touch(ships[j], 1) {
+					return false
+				}
 			}
 		}
 		return false
@@ -93,7 +97,7 @@ func (a *AgentSmith) ArrangeShips(ships []ship.Ship, touchDistance int) []ship.S
 	}
 
 	if validTouch() < len(ships) {
-		return a.ArrangeShips(ships, touchDistance-1)	
+		return a.ArrangeShips(ships, touchDistance-1)
 	}
 
 	return ships
@@ -107,6 +111,9 @@ func (a *AgentSmith) GetShot() (point lib.Point) {
 		shot = a.FireRandom()
 	}
 	a.Shots = append(a.Shots, shot)
+	if a.ShotRear != nil {
+		a.LastShotDirection = GetDirection(shot, *a.ShotRear)
+	}
 	return shot
 }
 
@@ -118,10 +125,6 @@ func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
 	if a.ShotRear == nil {
 		a.ShotRear = &point
 	}
-	a.LastShotDirection = a.GetDirection(*a.ShotFront, *a.ShotRear)
-
-	log.Printf("hit front %s", a.ShotFront)
-	log.Printf("hit rear %s", a.ShotRear)
 
 	if sunk {
 		a.ShotFront = nil
@@ -132,10 +135,12 @@ func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
 
 func (a *AgentSmith) ShotMiss(point lib.Point) {
 	a.MissCount++
-	if a.MissCount == 12 {
+	if a.MissCount == 4 {
 		a.ShotFront = nil
 		a.ShotRear = nil
 		a.MissCount = 0
+	} else {
+		a.LastShotDirection = a.LastShotDirection.Invert()
 	}
 }
 
@@ -170,10 +175,6 @@ func (*AgentSmith) FireDirected(direction constant.Direction, target lib.Point) 
 func (a *AgentSmith) FireAroundPoint(p lib.Point) lib.Point {
 
 	testShot := a.FireDirected(a.LastShotDirection, p)
-	if !a.ValidShot(testShot) {
-		testShot = a.FireDirected(a.LastShotDirection.Invert(), p)
-	}
-
 	if !a.ValidShot(testShot) {
 		testShot = a.FireDirected(constant.UP, p)
 	}
@@ -260,7 +261,7 @@ func (a *AgentSmith) ValidShot(p lib.Point) bool {
 	return true
 }
 
-func (a *AgentSmith) GetDirection(p1 lib.Point, p2 lib.Point) constant.Direction {
+func GetDirection(p1 lib.Point, p2 lib.Point) constant.Direction {
 	if p1.Y == p2.Y {
 		if p1.X >= p2.X {
 			return constant.RIGHT
@@ -279,8 +280,4 @@ func (a *AgentSmith) GetDirection(p1 lib.Point, p2 lib.Point) constant.Direction
 	}
 
 	return constant.UP
-}
-
-func (a *AgentSmith) UpdatePattern() {
-
 }

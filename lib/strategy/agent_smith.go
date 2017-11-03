@@ -176,6 +176,10 @@ func (a *AgentSmith) FireAroundPoint(p lib.Point) lib.Point {
 
 	testShot := a.FireDirected(a.LastShotDirection, p)
 	if !a.ValidShot(testShot) {
+		testShot = a.FireDirected(a.LastShotDirection.Invert(), p)
+	}
+
+	if !a.ValidShot(testShot) {
 		testShot = a.FireDirected(constant.UP, p)
 	}
 

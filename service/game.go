@@ -14,7 +14,7 @@ type GameService struct {
 
 func (g *GameService) HandleInvitation(context *gin.Context, request domain.GameInvitationRQ) (domain.GameInvitationRS, error) {
 	cacheKey := strings.Join([]string{"invitationRQ", request.SessionId}, "_")
-	err := g.CacheService.Put(cacheKey, request, 0)
+	err := g.CacheService.Put(cacheKey, request)
 	if err != nil {
 		log.Fatalf("set invitation cache error %s", err)
 	}
@@ -23,7 +23,7 @@ func (g *GameService) HandleInvitation(context *gin.Context, request domain.Game
 
 func (g *GameService) HandleGameStart(context *gin.Context, request domain.GameStartRQ) (domain.GameStartRS, error) {
 	cacheKey := strings.Join([]string{"startRQ", request.SessionId}, "_")
-	err := g.CacheService.Put(cacheKey, request, 0)
+	err := g.CacheService.Put(cacheKey, request)
 	if err != nil {
 		log.Printf("set start game cache error %s", err)
 	}
@@ -50,7 +50,7 @@ func (g *GameService) HandleGameStart(context *gin.Context, request domain.GameS
 
 	gameState := gameMetric.GetGameState()
 	gameStateCacheKey := strings.Join([]string{"gameState", request.SessionId}, "_")
-	err = g.CacheService.Put(gameStateCacheKey, gameState, 0)
+	err = g.CacheService.Put(gameStateCacheKey, gameState)
 	if err != nil {
 		log.Printf("set game state cache error %s", err)
 	}
@@ -78,6 +78,6 @@ func (g *GameService) HandleTurn(context *gin.Context, request domain.TurnRQ) (d
 	}
 
 	shot := gameMetric.GetShot()
-	g.CacheService.Put(cacheKey, gameMetric.GetGameState(), 0)
+	g.CacheService.Put(cacheKey, gameMetric.GetGameState())
 	return domain.TurnRS{FirePosition: shot}, nil
 }

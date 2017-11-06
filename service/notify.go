@@ -27,7 +27,7 @@ func (n *NotifyService) HandleNotification(request domain.NotifyRQ) (domain.Noti
 
 		gameMetric.LoadGameState(*gameState)
 		gameMetric.ShotResult(request.ShotResult)
-		n.CacheService.Put(cacheKey, gameMetric.GetGameState(), 0)
+		n.CacheService.Put(cacheKey, gameMetric.GetGameState())
 	}
 	return domain.NotifyRS{Success: true}, nil
 }

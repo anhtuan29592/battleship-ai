@@ -11,7 +11,7 @@ type CacheService struct {
 	RedisCli *redis.Client `inject:""`
 }
 
-func (c *CacheService) Put(key string, value interface{}, duration int) error {
+func (c *CacheService) Put(key string, value interface{}) error {
 	arr, err := json.Marshal(value)
 	if err != nil {
 		log.Print("json marshal error, retry...")
@@ -21,10 +21,10 @@ func (c *CacheService) Put(key string, value interface{}, duration int) error {
 		}
 	}
 
-	err = c.RedisCli.Set(key, string(arr), time.Duration(duration)).Err()
+	err = c.RedisCli.Set(key, string(arr), time.Duration(1800000000000)).Err()
 	if err != nil {
 		log.Print("put cache error, retry...")
-		err = c.RedisCli.Set(key, string(arr), time.Duration(duration)).Err()
+		err = c.RedisCli.Set(key, string(arr), time.Duration(1800000000000)).Err()
 	}
 
 	return err

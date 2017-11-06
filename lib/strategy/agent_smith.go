@@ -4,7 +4,6 @@ import (
 	"github.com/anhtuan29592/battleship-ai/lib"
 	"github.com/anhtuan29592/battleship-ai/lib/constant"
 	"math/rand"
-	"github.com/anhtuan29592/battleship-ai/lib/ship"
 	"encoding/json"
 	"log"
 )
@@ -42,65 +41,7 @@ func (a *AgentSmith) StartGame(boardSize lib.Size) {
 	a.Shots = make([]lib.Point, 0)
 	a.HitShots = make([]lib.Point, 0)
 	a.BoardSize = boardSize
-	a.SetUpShotPattern(boardSize)
-}
-
-func (a *AgentSmith) ArrangeShips(ships []ship.Ship, touchDistance int) []ship.Ship {
-
-	hasConflict := func () bool {
-		for i := 0; i < len(ships) - 1; i++ {
-			for j := i + 1; j < len(ships); j++ {
-				if ships[i].ConflictWith(ships[j]) {
-					return true
-				}
-
-				if !ships[i].Touch(ships[j], 1) {
-					return false
-				}
-			}
-		}
-		return false
-	}
-
-	validTouch := func () int {
-		count := 0
-		for i := 0; i < len(ships) - 1; i++ {
-			for j := i + 1; j < len(ships); j++ {
-				if ships[i].Touch(ships[j], touchDistance) {
-					count++
-				}
-			}
-		}
-		return count
-	}
-
-	validOnBoard := func () bool {
-		for i := 0; i < len(ships); i++ {
-			if !ships[i].IsValid(a.BoardSize) {
-				return false
-			}
-		}
-		return true
-	}
-
-	for {
-		if !hasConflict() && validOnBoard() {
-			break
-		}
-
-		for i := 0; i < len(ships); i++ {
-			x := rand.Intn(a.BoardSize.Width - 1)
-			y := rand.Intn(a.BoardSize.Height - 1)
-			orientation := constant.Orientation(rand.Intn(2))
-			ships[i].UpdateLocation(orientation, lib.Point{X: x, Y: y})
-		}
-	}
-
-	if validTouch() < len(ships) {
-		return a.ArrangeShips(ships, touchDistance-1)
-	}
-
-	return ships
+	a.ShotPatterns = SetUpShotPattern(boardSize)
 }
 
 func (a *AgentSmith) GetShot() (point lib.Point) {
@@ -117,7 +58,8 @@ func (a *AgentSmith) GetShot() (point lib.Point) {
 	return shot
 }
 
-func (a *AgentSmith) ShotHit(point lib.Point, sunk bool) {
+func (a *AgentSmith) ShotHit(point lib.Point, shipPositions []lib.Point) {
+	sunk := len(shipPositions) > 0
 	log.Printf("hit location %s, sunk %s", point, sunk)
 	a.HitShots = append(a.HitShots, point)
 	a.MissCount = 0
@@ -142,19 +84,6 @@ func (a *AgentSmith) ShotMiss(point lib.Point) {
 	} else {
 		a.LastShotDirection = a.LastShotDirection.Invert()
 	}
-}
-
-func (a *AgentSmith) SetUpShotPattern(boardSize lib.Size) {
-	a.ShotPatterns = make([]lib.Point, 0)
-
-	for r := 0; r < boardSize.Height; r++ {
-		for c := 0; c < boardSize.Width; c++ {
-			if (r+c)%2 == 0 {
-				a.ShotPatterns = append(a.ShotPatterns, lib.Point{X: c, Y: r})
-			}
-		}
-	}
-
 }
 
 func (*AgentSmith) FireDirected(direction constant.Direction, target lib.Point) lib.Point {
@@ -263,25 +192,4 @@ func (a *AgentSmith) ValidShot(p lib.Point) bool {
 	}
 
 	return true
-}
-
-func GetDirection(p1 lib.Point, p2 lib.Point) constant.Direction {
-	if p1.Y == p2.Y {
-		if p1.X >= p2.X {
-			return constant.RIGHT
-		} else {
-			return constant.LEFT
-		}
-	}
-
-	// Vertical
-	if p1.X == p2.X {
-		if p1.Y >= p2.Y {
-			return constant.DOWN
-		} else {
-			return constant.UP
-		}
-	}
-
-	return constant.UP
 }

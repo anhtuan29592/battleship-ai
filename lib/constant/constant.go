@@ -49,7 +49,7 @@ func (s ShipType) String() string {
 type Direction int
 
 const (
-	UP Direction = iota
+	UP    Direction = iota
 	DOWN
 	LEFT
 	RIGHT
@@ -80,20 +80,21 @@ func (d Direction) Invert() Direction {
 		return RIGHT
 	case RIGHT:
 		return LEFT
-	default :
+	default:
 		return UP
 	}
 }
 
 const (
 	AGENT_SMITH_STRATEGY = "ASM"
+	SAMPLE_STRATEGY      = "SSG"
 )
 
 const (
-	HIT 	= "HIT"
-	MISS 	= "MISS"
-	CLEAR 	= "CLEAR"
-	SUNK 	= "SUNK"
+	HIT   = "HIT"
+	MISS  = "MISS"
+	CLEAR = "CLEAR"
+	SUNK  = "SUNK"
 )
 
 const DEFAULT_TOUCH_DISTANCE = 3

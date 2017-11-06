@@ -13,7 +13,7 @@ type GameMetric struct {
 }
 
 func NewGameMetric() GameMetric {
-	asm := &strategy.AgentSmith{}
+	asm := &strategy.SampleStrategy{}
 	return GameMetric{GameAI: strategy.GameAI{Strategy: asm, Mixin: asm}}
 }
 
@@ -59,7 +59,7 @@ func (g *GameMetric) CreateShips(quantities []domain.ShipQuantity) []ship.Ship {
 }
 
 func (g *GameMetric) ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
-	return g.GameAI.Strategy.ArrangeShips(ships, constant.DEFAULT_TOUCH_DISTANCE)
+	return strategy.ArrangeShips(boardSize, ships, constant.DEFAULT_TOUCH_DISTANCE)
 }
 
 func (g *GameMetric) GetShot() lib.Point {
@@ -68,9 +68,8 @@ func (g *GameMetric) GetShot() lib.Point {
 
 func (g *GameMetric) ShotResult(result domain.ShotResult) {
 	if constant.HIT == result.Status {
-		g.GameAI.Strategy.ShotHit(result.Position, len(result.RecognizedWholeShip.Positions) > 0)
+		g.GameAI.Strategy.ShotHit(result.Position, result.RecognizedWholeShip.Positions)
 	} else {
 		g.GameAI.Strategy.ShotMiss(result.Position)
 	}
 }
-

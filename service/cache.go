@@ -31,13 +31,27 @@ func (c *CacheService) Put(key string, value interface{}, duration int) error {
 }
 
 func (c *CacheService) Get(key string, out interface{}) error {
+
+	count := 5
 	jsonVal, err := c.RedisCli.Get(key).Result()
 	if err != nil {
 		log.Print("get cache error, retry...")
-		jsonVal, err = c.RedisCli.Get(key).Result()
-		if err != nil {
-			return err
+		for {
+			jsonVal, err = c.RedisCli.Get(key).Result()
+			if err == nil {
+				break
+			}
+
+			if count < 0 {
+				break
+			}
+
+			count--
 		}
+	}
+
+	if err != nil {
+		return err
 	}
 	json.Unmarshal([]byte(jsonVal), &out)
 	return nil

@@ -91,7 +91,7 @@ func (s *Ship) Zoom() []lib.Point {
 	sType := s.GetType()
 	positions := s.GetPositions()
 
-	if sType != constant.CARRIER {
+	if sType != constant.DESTROYER && sType != constant.CRUISER {
 		return positions
 	}
 

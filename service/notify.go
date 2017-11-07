@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/anhtuan29592/battleship-ai/domain"
-	"github.com/anhtuan29592/battleship-ai/config"
+	"github.com/anhtuan29592/paladin/domain"
+	"github.com/anhtuan29592/paladin/config"
 	"strings"
 	"log"
-	"github.com/anhtuan29592/battleship-ai/lib"
+	"github.com/anhtuan29592/paladin/lib"
 )
 
 type NotifyService struct {

@@ -1,11 +1,12 @@
 package service
 
 import (
-	"github.com/anhtuan29592/battleship-ai/domain"
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/ship"
-	"github.com/anhtuan29592/battleship-ai/lib/constant"
-	"github.com/anhtuan29592/battleship-ai/lib/strategy"
+	"github.com/anhtuan29592/paladin/domain"
+	"github.com/anhtuan29592/paladin/lib"
+	"github.com/anhtuan29592/paladin/lib/ship"
+	"github.com/anhtuan29592/paladin/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/strategy"
+	"fmt"
 )
 
 type GameMetric struct {
@@ -59,7 +60,9 @@ func (g *GameMetric) CreateShips(quantities []domain.ShipQuantity) []ship.Ship {
 }
 
 func (g *GameMetric) ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
-	return strategy.ArrangeShips(boardSize, ships)
+	arrangedShips := strategy.ArrangeShips(boardSize, ships)
+	PrintShip(boardSize, arrangedShips)
+	return arrangedShips
 }
 
 func (g *GameMetric) GetShot() lib.Point {
@@ -72,4 +75,29 @@ func (g *GameMetric) ShotResult(result domain.ShotResult) {
 	} else {
 		g.GameAI.Strategy.ShotMiss(result.Position)
 	}
+}
+
+func PrintShip(boardSize lib.Size, ships []ship.Ship) {
+	for r := 0; r < boardSize.Height; r++ {
+		fmt.Print("|")
+		for c := 0; c < boardSize.Width; c++ {
+			printed := false
+			for i := 0; i < len(ships); i++ {
+				pos := ships[i].GetPositions()
+				for j := 0; j < len(pos); j++ {
+					if pos[j].X == c && pos[j].Y == r {
+						printed = true
+						fmt.Print(ships[i].GetType())
+						fmt.Print("|")
+					}
+				}
+			}
+			if !printed {
+				fmt.Print("--")
+				fmt.Print("|")
+			}
+		}
+		fmt.Print("\n")
+	}
+
 }

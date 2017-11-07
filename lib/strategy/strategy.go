@@ -1,12 +1,11 @@
 package strategy
 
 import (
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/ship"
+	"github.com/anhtuan29592/paladin/lib"
+	"github.com/anhtuan29592/paladin/lib/ship"
 	"math/rand"
-	"github.com/anhtuan29592/battleship-ai/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/constant"
 	"sort"
-	"log"
 )
 
 type Strategy interface {
@@ -26,7 +25,7 @@ func SetUpShotPattern(boardSize lib.Size) []lib.Point {
 
 	for r := 0; r < boardSize.Height; r++ {
 		for c := 0; c < boardSize.Width; c++ {
-			if (r+c)%2 == 0 {
+			if (r + c) % 2 == 0 {
 				shotPatterns = append(shotPatterns, lib.Point{X: c, Y: r})
 			}
 		}
@@ -75,21 +74,25 @@ func ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
 	//	}
 
 	for i := 0; i < len(ships); i++ {
-		ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width - 1), Y: rand.Intn(boardSize.Height - 1)})
 		for {
+			for {
+				ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width), Y: rand.Intn(boardSize.Height)})
+				if ships[i].IsValid(boardSize) {
+					break
+				}
+			}
 			hasConflict := false
 			for j := 0; j < i; j++ {
-				if ships[i].ConflictWith(ships[j]) {
-					ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width - 1), Y: rand.Intn(boardSize.Height - 1)})
+				if ships[i].ConflictWith(ships[j], boardSize) {
 					hasConflict = true
 				}
 			}
+
 			if !hasConflict {
 				break
 			}
 		}
 	}
-
 	return ships
 }
 

@@ -1,6 +1,8 @@
 package util
 
-import "github.com/anhtuan29592/battleship-ai/lib"
+import (
+	"github.com/anhtuan29592/paladin/lib"
+)
 
 func Abs(value int) int {
 	if value < 0 {

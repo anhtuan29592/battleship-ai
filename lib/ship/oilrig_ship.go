@@ -1,8 +1,8 @@
 package ship
 
 import (
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/constant"
+	"github.com/anhtuan29592/paladin/lib"
+	"github.com/anhtuan29592/paladin/lib/constant"
 )
 
 type OilRigShip struct {

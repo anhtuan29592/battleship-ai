@@ -1,12 +1,12 @@
 package strategy
 
 import (
-	"github.com/anhtuan29592/battleship-ai/lib"
+	"github.com/anhtuan29592/paladin/lib"
 	"encoding/json"
-	"github.com/anhtuan29592/battleship-ai/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/constant"
 	"math/rand"
 	"log"
-	"github.com/anhtuan29592/battleship-ai/lib/util"
+	"github.com/anhtuan29592/paladin/lib/util"
 )
 
 type SampleStrategy struct {

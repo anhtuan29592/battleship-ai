@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/anhtuan29592/battleship-ai/domain"
-	"github.com/anhtuan29592/battleship-ai/lib"
+	"github.com/anhtuan29592/paladin/domain"
+	"github.com/anhtuan29592/paladin/lib"
 	"github.com/gin-gonic/gin"
 	"log"
 	"strings"

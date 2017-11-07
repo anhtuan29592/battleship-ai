@@ -1,9 +1,9 @@
 package ship
 
 import (
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/constant"
-	"github.com/anhtuan29592/battleship-ai/lib/util"
+	"github.com/anhtuan29592/paladin/lib"
+	"github.com/anhtuan29592/paladin/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/util"
 )
 
 type ShipAction interface {
@@ -30,9 +30,9 @@ func (s *Ship) GetPositions() []lib.Point {
 	return s.Action.GetPositions(s.Location, s.Orientation)
 }
 
-func (s *Ship) ConflictWith(other Ship) bool {
-	otherPositions := other.Zoom()
-	myPositions := s.Zoom()
+func (s *Ship) ConflictWith(other Ship, boardSize lib.Size) bool {
+	otherPositions := other.Zoom(boardSize)
+	myPositions := s.Zoom(boardSize)
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -46,8 +46,8 @@ func (s *Ship) ConflictWith(other Ship) bool {
 }
 
 func (s *Ship) Touch(other Ship, touchDistance int) bool {
-	otherPositions := other.Zoom()
-	myPositions := s.Zoom()
+	otherPositions := other.GetPositions()
+	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -80,7 +80,7 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 
 	size := s.GetSize()
 
-	if s.Location.X+size.Width > boardSize.Width || s.Location.Y+size.Height > boardSize.Height {
+	if s.Location.X+size.Width - 1 >= boardSize.Width || s.Location.Y+size.Height - 1 >= boardSize.Height {
 		return false
 	}
 
@@ -89,15 +89,13 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 
 func (s *Ship) Zoom(boardSize lib.Size) []lib.Point {
 	sType := s.GetType()
-	positions := s.GetPositions()
-
 	if sType == constant.CARRIER || sType == constant.BATTLE_SHIP {
-		return positions
+		return s.GetPositions()
 	}
 
 	// zoom size
 	size := s.GetSize()
-	size = lib.Size{Width: size.Width + 2, Height: size.Height + 2}
+	size = lib.Size{Width: size.Width + 1, Height: size.Height + 1}
 
 	positions := make([]lib.Point, 0)
 	for r := 0; r < size.Height; r++ {

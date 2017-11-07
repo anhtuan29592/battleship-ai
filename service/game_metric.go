@@ -59,7 +59,7 @@ func (g *GameMetric) CreateShips(quantities []domain.ShipQuantity) []ship.Ship {
 }
 
 func (g *GameMetric) ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
-	return strategy.ArrangeShips(boardSize, ships, constant.DEFAULT_TOUCH_DISTANCE)
+	return strategy.ArrangeShips(boardSize, ships)
 }
 
 func (g *GameMetric) GetShot() lib.Point {

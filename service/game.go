@@ -32,7 +32,7 @@ func (g *GameService) HandleGameStart(context *gin.Context, request domain.GameS
 	invitation := &domain.GameInvitationRQ{}
 	err = g.CacheService.Get(invitationCacheKey, invitation)
 	if err != nil || &invitation == nil {
-		log.Fatalf("couldn't get invitation info of session %s, error = %s", request.SessionId, err)
+		log.Printf("couldn't get invitation info of session %s, error = %s", request.SessionId, err)
 		return domain.GameStartRS{}, err
 	}
 

@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"github.com/anhtuan29592/battleship-ai/lib/constant"
 	"math/rand"
+	"log"
+	"github.com/anhtuan29592/battleship-ai/lib/util"
 )
 
 type SampleStrategy struct {
 	Shots         []lib.Point
 	HitShots      []lib.Point
 	ShotPatterns  []lib.Point
+	PriorityShots []lib.Point
 	BoardSize     lib.Size
 	ComboShots    []lib.Point
 	CurrentTarget *Target
@@ -29,12 +32,32 @@ func (s *SampleStrategy) StartGame(boardSize lib.Size) {
 	s.ComboShots = make([]lib.Point, 0)
 	s.BoardSize = boardSize
 	s.ShotPatterns = SetUpShotPattern(boardSize)
+
+	s.PriorityShots = make([]lib.Point, 0)
+	for i := 0; i < len(s.ShotPatterns); i++ {
+		tmp := s.ShotPatterns[i]
+		//if (0 <= tmp.X && tmp.X < 1) || (boardSize.Width - 1 <= tmp.X && tmp.X < boardSize.Width) || (0 <= tmp.Y && tmp.Y < 1) || (boardSize.Height - 1 <= tmp.Y && tmp.Y < boardSize.Height) {
+		//	s.PriorityShots = append(s.PriorityShots, tmp)
+		//	s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
+		//}
+		if (2 <= tmp.X && tmp.X < boardSize.Width - 2) && (2 <= tmp.Y && tmp.Y < boardSize.Height - 2) {
+			s.PriorityShots = append(s.PriorityShots, tmp)
+			s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
+		}
+	}
+	log.Printf("Num of priority shots %d", len(s.PriorityShots))
+	log.Printf("Num of pattern shots %d", len(s.ShotPatterns))
 }
 
 func (s *SampleStrategy) GetShot() (point lib.Point) {
 	var shot lib.Point
 	if s.CurrentTarget != nil {
-		shot = s.CurrentTarget.EvaluateNextShot(s.Shots)
+		for {
+			shot = s.CurrentTarget.EvaluateNextShot(s.Shots)
+			if s.ValidShot(shot) {
+				break
+			}
+		}
 	} else {
 		shot = s.FireRandom()
 	}
@@ -45,7 +68,7 @@ func (s *SampleStrategy) GetShot() (point lib.Point) {
 func (s *SampleStrategy) ShotHit(point lib.Point, shipPositions []lib.Point) {
 	if len(shipPositions) > 0 {
 		for i := len(s.ComboShots) - 1; i >= 0; i-- {
-			if CheckPointInSlice(shipPositions, s.ComboShots[i]) {
+			if util.CheckPointInSlice(shipPositions, s.ComboShots[i]) {
 				s.ComboShots = append(s.ComboShots[:i], s.ComboShots[i+1:]...)
 			}
 		}
@@ -62,8 +85,8 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipPositions []lib.Point) {
 			s.CurrentTarget = s.CurrentTarget.Tracking(s.Shots, point)
 		}
 		s.ComboShots = append(s.ComboShots, point)
-		s.HitShots = append(s.HitShots, point)
 	}
+	s.HitShots = append(s.HitShots, point)
 }
 
 func (s *SampleStrategy) ShotMiss(point lib.Point) {
@@ -90,7 +113,13 @@ func (s *SampleStrategy) LoadGameState(state lib.GameState) {
 func (s *SampleStrategy) FireRandom() lib.Point {
 	var point lib.Point
 	for {
-		if len(s.ShotPatterns) > 0 {
+		if len(s.PriorityShots) > 0 {
+			log.Print("fire priority...")
+			i := rand.Intn(len(s.PriorityShots))
+			point = s.PriorityShots[i]
+			s.PriorityShots = append(s.PriorityShots[:i], s.PriorityShots[i+1:]...)
+		} else if len(s.ShotPatterns) > 0 {
+			log.Print("fire pattern...")
 			i := rand.Intn(len(s.ShotPatterns))
 			point = s.ShotPatterns[i]
 			s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
@@ -176,25 +205,25 @@ func (t *Target) InitNeighbors(shots []lib.Point) {
 
 	// down
 	testPoint := lib.Point{X: t.Location.X, Y: t.Location.Y + 1}
-	if testPoint.ValidInBoard(t.BoardSize) && !CheckPointInSlice(shots, testPoint) {
+	if testPoint.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testPoint) {
 		t.Neighbors = append(t.Neighbors, testPoint)
 	}
 
 	// up
 	testPoint = lib.Point{X: t.Location.X, Y: t.Location.Y - 1}
-	if testPoint.ValidInBoard(t.BoardSize) && !CheckPointInSlice(shots, testPoint) {
+	if testPoint.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testPoint) {
 		t.Neighbors = append(t.Neighbors, testPoint)
 	}
 
 	// left
 	testPoint = lib.Point{X: t.Location.X - 1, Y: t.Location.Y}
-	if testPoint.ValidInBoard(t.BoardSize) && !CheckPointInSlice(shots, testPoint) {
+	if testPoint.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testPoint) {
 		t.Neighbors = append(t.Neighbors, testPoint)
 	}
 
 	// right
 	testPoint = lib.Point{X: t.Location.X + 1, Y: t.Location.Y}
-	if testPoint.ValidInBoard(t.BoardSize) && !CheckPointInSlice(shots, testPoint) {
+	if testPoint.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testPoint) {
 		t.Neighbors = append(t.Neighbors, testPoint)
 	}
 }
@@ -206,7 +235,7 @@ func (t *Target) EvaluateNextShot(shots []lib.Point) lib.Point {
 	for {
 		nodes = append(nodes, node.Location)
 		for i := 0; i < len(node.Neighbors); i++ {
-			if !CheckPointInSlice(shots, node.Neighbors[i]) {
+			if !util.CheckPointInSlice(shots, node.Neighbors[i]) {
 				allNeighbors = append(allNeighbors, node.Neighbors[i])
 			}
 		}
@@ -235,60 +264,60 @@ func (t *Target) EvaluateNextShot(shots []lib.Point) lib.Point {
 	nodeCount := len(nodes)
 
 	// carrier ship: next is located
-	if nodeCount == 4 {
+	if nodeCount >= 4 {
 		if wholeLineHorizontal {
 			nodes = SortPoints(nodes, constant.HORIZONTAL, true)
 			testNode := lib.Point{X: nodes[0].X + 1, Y: nodes[0].Y - 1}
-			if CheckPointInSlice(allNeighbors, testNode) {
+			if util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
 			}
 
-			testNode = lib.Point{X: nodes[nodeCount-1].X + 1, Y: nodes[nodeCount-1].Y + 1}
-			if CheckPointInSlice(allNeighbors, testNode) {
-				return testNode
-			}
+			//testNode = lib.Point{X: nodes[nodeCount-1].X + 1, Y: nodes[nodeCount-1].Y + 1}
+			//if CheckPointInSlice(allNeighbors, testNode) {
+			//	return testNode
+			//}
 		}
 
 		if wholeLineVertical {
 			nodes = SortPoints(nodes, constant.VERTICAL, true)
 			testNode := lib.Point{X: nodes[0].X - 1, Y: nodes[0].Y + 1}
-			if CheckPointInSlice(allNeighbors, testNode) {
+			if util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
 			}
-
-			testNode = lib.Point{X: nodes[nodeCount-1].X + 1, Y: nodes[nodeCount-1].Y - 1}
-			if CheckPointInSlice(allNeighbors, testNode) {
-				return testNode
-			}
+			//
+			//testNode = lib.Point{X: nodes[nodeCount-1].X + 1, Y: nodes[nodeCount-1].Y - 1}
+			//if CheckPointInSlice(allNeighbors, testNode) {
+			//	return testNode
+			//}
 		}
-
-		nodes = SortPoints(nodes, constant.VERTICAL, true)
-		testNode := lib.Point{X: nodes[nodeCount-1].X, Y: nodes[nodeCount-1].Y + 1}
-		if CheckPointInSlice(allNeighbors, testNode) {
-			return testNode
-		}
-
-		nodes = SortPoints(nodes, constant.HORIZONTAL, true)
-		testNode = lib.Point{X: nodes[nodeCount-1].X + 1, Y: nodes[nodeCount-1].Y}
-		if CheckPointInSlice(allNeighbors, testNode) {
-			return testNode
-		}
+		//
+		//nodes = SortPoints(nodes, constant.VERTICAL, true)
+		//testNode := lib.Point{X: nodes[nodeCount-1].X, Y: nodes[nodeCount-1].Y + 1}
+		//if CheckPointInSlice(allNeighbors, testNode) {
+		//	return testNode
+		//}
+		//
+		//nodes = SortPoints(nodes, constant.HORIZONTAL, true)
+		//testNode = lib.Point{X: nodes[nodeCount-1].X + 1, Y: nodes[nodeCount-1].Y}
+		//if CheckPointInSlice(allNeighbors, testNode) {
+		//	return testNode
+		//}
 	}
 
 	// battle ship or oil rig
-	if nodeCount == 3 || nodeCount == 2 {
+	if nodeCount >= 3 || nodeCount >= 2 {
 		// battle ship: next is neighbor of last no first
 		if wholeLineHorizontal {
 			nodes = SortPoints(nodes, constant.HORIZONTAL, true)
 			lastNode := nodes[nodeCount-1]
 			testNode := lib.Point{X: lastNode.X + 1, Y: lastNode.Y}
-			if testNode.InlineWith(nodes) && CheckPointInSlice(allNeighbors, testNode) {
+			if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
 			}
 
 			firstNode := nodes[0]
 			testNode = lib.Point{X: firstNode.X - 1, Y: lastNode.Y}
-			if testNode.InlineWith(nodes) && CheckPointInSlice(allNeighbors, testNode) {
+			if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
 			}
 		}
@@ -297,13 +326,13 @@ func (t *Target) EvaluateNextShot(shots []lib.Point) lib.Point {
 			nodes = SortPoints(nodes, constant.VERTICAL, true)
 			lastNode := nodes[nodeCount-1]
 			testNode := lib.Point{X: lastNode.X, Y: lastNode.Y + 1}
-			if testNode.InlineWith(nodes) && CheckPointInSlice(allNeighbors, testNode) {
+			if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
 			}
 
 			firstNode := nodes[0]
 			testNode = lib.Point{X: firstNode.X, Y: firstNode.Y - 1}
-			if testNode.InlineWith(nodes) && CheckPointInSlice(allNeighbors, testNode) {
+			if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
 			}
 		}

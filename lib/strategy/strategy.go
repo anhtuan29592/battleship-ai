@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"github.com/anhtuan29592/battleship-ai/lib/constant"
 	"sort"
+	"log"
 )
 
 type Strategy interface {
@@ -34,59 +35,60 @@ func SetUpShotPattern(boardSize lib.Size) []lib.Point {
 	return shotPatterns
 }
 
-func ArrangeShips(boardSize lib.Size, ships []ship.Ship, touchDistance int) []ship.Ship {
+func ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
 
-	hasConflict := func() bool {
-		for i := 0; i < len(ships)-1; i++ {
-			for j := i + 1; j < len(ships); j++ {
+	//hasConflict := func() bool {
+	//	for i := 0; i < len(ships); i++ {
+	//		for j := i + 1; j < len(ships); j++ {
+	//			if ships[i].ConflictWith(ships[j]) {
+	//				return true
+	//			}
+	//		}
+	//	}
+	//	return false
+	//}
+	//
+	//validTouch := func() int {
+	//	count := 0
+	//	for i := 0; i < len(ships); i++ {
+	//		for j := i + 1; j < len(ships); j++ {
+	//			if ships[i].Touch(ships[j], touchDistance) {
+	//				count++
+	//			}
+	//		}
+	//	}
+	//	return count
+	//}
+	//
+	//validOnBoard := func() bool {
+	//	for i := 0; i < len(ships); i++ {
+	//		if !ships[i].IsValid(boardSize) {
+	//			return false
+	//		}
+	//	}
+	//	return true
+	//}
+	//
+	//for {
+	//	if !hasConflict() && validOnBoard() {
+	//		return ships
+	//	}
+
+	for i := 0; i < len(ships); i++ {
+		ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width - 1), Y: rand.Intn(boardSize.Height - 1)})
+		for {
+			hasConflict := false
+			for j := 0; j < i; j++ {
 				if ships[i].ConflictWith(ships[j]) {
-					return true
-				}
-
-				if !ships[i].Touch(ships[j], 1) {
-					return false
+					ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width - 1), Y: rand.Intn(boardSize.Height - 1)})
+					hasConflict = true
+					log.Printf("conflict i = %d, j = %d", i, j)
 				}
 			}
-		}
-		return false
-	}
-
-	validTouch := func() int {
-		count := 0
-		for i := 0; i < len(ships)-1; i++ {
-			for j := i + 1; j < len(ships); j++ {
-				if ships[i].Touch(ships[j], touchDistance) {
-					count++
-				}
+			if !hasConflict {
+				break
 			}
 		}
-		return count
-	}
-
-	validOnBoard := func() bool {
-		for i := 0; i < len(ships); i++ {
-			if !ships[i].IsValid(boardSize) {
-				return false
-			}
-		}
-		return true
-	}
-
-	for {
-		if !hasConflict() && validOnBoard() {
-			break
-		}
-
-		for i := 0; i < len(ships); i++ {
-			x := rand.Intn(boardSize.Width - 1)
-			y := rand.Intn(boardSize.Height - 1)
-			orientation := constant.Orientation(rand.Intn(2))
-			ships[i].UpdateLocation(orientation, lib.Point{X: x, Y: y})
-		}
-	}
-
-	if validTouch() < len(ships) {
-		return ArrangeShips(boardSize, ships, touchDistance-1)
 	}
 
 	return ships
@@ -133,14 +135,4 @@ func SortPoints(s []lib.Point, orientation constant.Orientation, isAscending boo
 	}
 
 	return s
-}
-
-func CheckPointInSlice(slice []lib.Point, point lib.Point) bool {
-	for i := 0; i < len(slice); i++ {
-		if slice[i].X == point.X && slice[i].Y == point.Y {
-			return true
-		}
-	}
-
-	return false
 }

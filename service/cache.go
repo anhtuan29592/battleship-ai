@@ -21,10 +21,10 @@ func (c *CacheService) Put(key string, value interface{}) error {
 		}
 	}
 
-	err = c.RedisCli.Set(key, string(arr), time.Duration(1800000000000)).Err()
+	err = c.RedisCli.Set(key, string(arr), time.Duration(5 * time.Minute)).Err()
 	if err != nil {
 		log.Print("put cache error, retry...")
-		err = c.RedisCli.Set(key, string(arr), time.Duration(1800000000000)).Err()
+		err = c.RedisCli.Set(key, string(arr), time.Duration(5 * time.Minute)).Err()
 	}
 
 	return err
@@ -32,21 +32,21 @@ func (c *CacheService) Put(key string, value interface{}) error {
 
 func (c *CacheService) Get(key string, out interface{}) error {
 
-	count := 5
 	jsonVal, err := c.RedisCli.Get(key).Result()
 	if err != nil {
 		log.Print("get cache error, retry...")
+		count := 0
 		for {
+			log.Printf("retry %d time", count)
+			if count > 10 {
+				break
+			}
 			jsonVal, err = c.RedisCli.Get(key).Result()
 			if err == nil {
 				break
 			}
-
-			if count < 0 {
-				break
-			}
-
-			count--
+			count++
+			time.Sleep(1 * time.Second)
 		}
 	}
 

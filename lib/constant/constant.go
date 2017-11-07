@@ -96,5 +96,3 @@ const (
 	CLEAR = "CLEAR"
 	SUNK  = "SUNK"
 )
-
-const DEFAULT_TOUCH_DISTANCE = 3

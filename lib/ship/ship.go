@@ -31,8 +31,8 @@ func (s *Ship) GetPositions() []lib.Point {
 }
 
 func (s *Ship) ConflictWith(other Ship) bool {
-	otherPositions := other.GetPositions()
-	myPositions := s.GetPositions()
+	otherPositions := other.Zoom()
+	myPositions := s.Zoom()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -46,12 +46,12 @@ func (s *Ship) ConflictWith(other Ship) bool {
 }
 
 func (s *Ship) Touch(other Ship, touchDistance int) bool {
-	otherPositions := other.GetPositions()
-	myPositions := s.GetPositions()
+	otherPositions := other.Zoom()
+	myPositions := s.Zoom()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
-			if util.Abs(otherPositions[i].X - myPositions[j].X) - 1 < touchDistance ||  util.Abs(otherPositions[i].Y - myPositions[j].Y) - 1 < touchDistance {
+			if util.Abs(otherPositions[i].X-myPositions[j].X) < touchDistance || util.Abs(otherPositions[i].Y-myPositions[j].Y) < touchDistance {
 				return false
 			}
 		}
@@ -85,4 +85,30 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 	}
 
 	return true
+}
+
+func (s *Ship) Zoom() []lib.Point {
+	sType := s.GetType()
+	positions := s.GetPositions()
+
+	if sType != constant.CARRIER {
+		return positions
+	}
+
+	zoom := make([]lib.Point, 0)
+	for i := 0; i < len(positions); i++ {
+		p := positions[i]
+		// up
+		zoom = append(zoom, lib.Point{X: p.X, Y: p.Y - 1})
+
+		// down
+		zoom = append(zoom, lib.Point{X: p.X, Y: p.Y + 1})
+
+		// left
+		zoom = append(zoom, lib.Point{X: p.X - 1, Y: p.Y})
+
+		// right
+		zoom = append(zoom, lib.Point{X: p.X + 1, Y: p.Y})
+	}
+	return zoom
 }

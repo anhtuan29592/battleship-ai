@@ -82,7 +82,6 @@ func ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
 				if ships[i].ConflictWith(ships[j]) {
 					ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width - 1), Y: rand.Intn(boardSize.Height - 1)})
 					hasConflict = true
-					log.Printf("conflict i = %d, j = %d", i, j)
 				}
 			}
 			if !hasConflict {

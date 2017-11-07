@@ -87,7 +87,7 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 	return true
 }
 
-func (s *Ship) Zoom() []lib.Point {
+func (s *Ship) Zoom(boardSize lib.Size) []lib.Point {
 	sType := s.GetType()
 	positions := s.GetPositions()
 
@@ -95,20 +95,18 @@ func (s *Ship) Zoom() []lib.Point {
 		return positions
 	}
 
-	zoom := make([]lib.Point, 0)
-	for i := 0; i < len(positions); i++ {
-		p := positions[i]
-		// up
-		zoom = append(zoom, lib.Point{X: p.X, Y: p.Y - 1})
+	// zoom size
+	size := s.GetSize()
+	size = lib.Size{Width: size.Width + 2, Height: size.Height + 2}
 
-		// down
-		zoom = append(zoom, lib.Point{X: p.X, Y: p.Y + 1})
-
-		// left
-		zoom = append(zoom, lib.Point{X: p.X - 1, Y: p.Y})
-
-		// right
-		zoom = append(zoom, lib.Point{X: p.X + 1, Y: p.Y})
+	positions := make([]lib.Point, 0)
+	for r := 0; r < size.Height; r++ {
+		for c := 0; c < size.Width; c++ {
+			point := lib.Point{X: s.Location.X + c, Y: s.Location.Y + r}
+			if point.ValidInBoard(boardSize) {
+				positions = append(positions, point)
+			}
+		}
 	}
-	return zoom
+	return positions
 }

@@ -40,7 +40,14 @@ func (s *SampleStrategy) StartGame(boardSize lib.Size) {
 		//	s.PriorityShots = append(s.PriorityShots, tmp)
 		//	s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
 		//}
+		// center
 		if (2 <= tmp.X && tmp.X < boardSize.Width - 2) && (2 <= tmp.Y && tmp.Y < boardSize.Height - 2) {
+			s.PriorityShots = append(s.PriorityShots, tmp)
+			s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
+		}
+
+		// corners
+		if (0 <= tmp.X && tmp.X < 2 && 0 <= tmp.Y && tmp.Y < 2) || (boardSize.Width - 2 <= tmp.X && tmp.X < boardSize.Width && 0 <= tmp.Y && tmp.Y < 2) || (0 <= tmp.X && tmp.X <= 2 && boardSize.Height - 2 <= tmp.Y && tmp.Y < boardSize.Height) || (boardSize.Width - 2 <= tmp.X && tmp.X < boardSize.Width && boardSize.Height - 2 <= tmp.Y && tmp.Y < boardSize.Height) {
 			s.PriorityShots = append(s.PriorityShots, tmp)
 			s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
 		}

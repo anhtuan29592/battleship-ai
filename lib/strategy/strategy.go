@@ -25,7 +25,7 @@ func SetUpShotPattern(boardSize lib.Size) []lib.Point {
 
 	for r := 0; r < boardSize.Height; r++ {
 		for c := 0; c < boardSize.Width; c++ {
-			if (r + c) % 2 == 0 {
+			if (r+c)%2 == 0 {
 				shotPatterns = append(shotPatterns, lib.Point{X: c, Y: r})
 			}
 		}
@@ -36,44 +36,8 @@ func SetUpShotPattern(boardSize lib.Size) []lib.Point {
 
 func ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
 
-	//hasConflict := func() bool {
-	//	for i := 0; i < len(ships); i++ {
-	//		for j := i + 1; j < len(ships); j++ {
-	//			if ships[i].ConflictWith(ships[j]) {
-	//				return true
-	//			}
-	//		}
-	//	}
-	//	return false
-	//}
-	//
-	//validTouch := func() int {
-	//	count := 0
-	//	for i := 0; i < len(ships); i++ {
-	//		for j := i + 1; j < len(ships); j++ {
-	//			if ships[i].Touch(ships[j], touchDistance) {
-	//				count++
-	//			}
-	//		}
-	//	}
-	//	return count
-	//}
-	//
-	//validOnBoard := func() bool {
-	//	for i := 0; i < len(ships); i++ {
-	//		if !ships[i].IsValid(boardSize) {
-	//			return false
-	//		}
-	//	}
-	//	return true
-	//}
-	//
-	//for {
-	//	if !hasConflict() && validOnBoard() {
-	//		return ships
-	//	}
-
-	for i := 0; i < len(ships); i++ {
+	for i := 0; i < len(ships); {
+		retryCount := 0
 		for {
 			for {
 				ships[i].UpdateLocation(constant.Orientation(rand.Intn(2)), lib.Point{X: rand.Intn(boardSize.Width), Y: rand.Intn(boardSize.Height)})
@@ -85,12 +49,26 @@ func ArrangeShips(boardSize lib.Size, ships []ship.Ship) []ship.Ship {
 			for j := 0; j < i; j++ {
 				if ships[i].ConflictWith(ships[j], boardSize) {
 					hasConflict = true
+					break
 				}
 			}
 
-			if !hasConflict {
+			if !hasConflict{
+				retryCount = 0
 				break
 			}
+
+			if retryCount >= 100 {
+				break
+			}
+
+			retryCount++
+		}
+
+		if retryCount != 0 {
+			i = 0
+		} else {
+			i++
 		}
 	}
 	return ships

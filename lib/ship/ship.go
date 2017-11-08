@@ -10,6 +10,7 @@ type ShipAction interface {
 	GetType() constant.ShipType
 	GetSize(orientation constant.Orientation) lib.Size
 	GetPositions(location lib.Point, orientation constant.Orientation) []lib.Point
+	Zoom(boardSize lib.Size, location lib.Point, orientation constant.Orientation) []lib.Point
 }
 
 type Ship struct {
@@ -31,8 +32,8 @@ func (s *Ship) GetPositions() []lib.Point {
 }
 
 func (s *Ship) ConflictWith(other Ship, boardSize lib.Size) bool {
-	otherPositions := other.Zoom(boardSize)
-	myPositions := s.Zoom(boardSize)
+	otherPositions := other.Action.Zoom(boardSize, other.Location, other.Orientation)
+	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -80,31 +81,9 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 
 	size := s.GetSize()
 
-	if s.Location.X+size.Width - 1 >= boardSize.Width || s.Location.Y+size.Height - 1 >= boardSize.Height {
+	if s.Location.X+size.Width-1 >= boardSize.Width || s.Location.Y+size.Height-1 >= boardSize.Height {
 		return false
 	}
 
 	return true
-}
-
-func (s *Ship) Zoom(boardSize lib.Size) []lib.Point {
-	sType := s.GetType()
-	if sType == constant.CARRIER || sType == constant.BATTLE_SHIP {
-		return s.GetPositions()
-	}
-
-	// zoom size
-	size := s.GetSize()
-	size = lib.Size{Width: size.Width + 1, Height: size.Height + 1}
-
-	positions := make([]lib.Point, 0)
-	for r := 0; r < size.Height; r++ {
-		for c := 0; c < size.Width; c++ {
-			point := lib.Point{X: s.Location.X + c, Y: s.Location.Y + r}
-			if point.ValidInBoard(boardSize) {
-				positions = append(positions, point)
-			}
-		}
-	}
-	return positions
 }

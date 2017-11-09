@@ -18,8 +18,8 @@ func NewGameMetric() GameMetric {
 	return GameMetric{GameAI: strategy.GameAI{Strategy: asm, Mixin: asm}}
 }
 
-func (g *GameMetric) StartGame(rule domain.GameRule) {
-	g.GameAI.Strategy.StartGame(lib.Size{Width: rule.BoardWidth, Height: rule.BoardHeight})
+func (g *GameMetric) StartGame(rule domain.GameRule, ships []ship.Ship) {
+	g.GameAI.Strategy.StartGame(lib.Size{Width: rule.BoardWidth, Height: rule.BoardHeight}, ships)
 }
 
 func (g *GameMetric) GetGameState() lib.GameState {
@@ -71,7 +71,7 @@ func (g *GameMetric) GetShot() lib.Point {
 
 func (g *GameMetric) ShotResult(result domain.ShotResult) {
 	if constant.HIT == result.Status {
-		g.GameAI.Strategy.ShotHit(result.Position, result.RecognizedWholeShip.Positions)
+		g.GameAI.Strategy.ShotHit(result.Position, result.RecognizedWholeShip.Type, result.RecognizedWholeShip.Positions)
 	} else {
 		g.GameAI.Strategy.ShotMiss(result.Position)
 	}

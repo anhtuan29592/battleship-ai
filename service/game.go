@@ -39,9 +39,9 @@ func (g *GameService) HandleGameStart(context *gin.Context, request domain.GameS
 	// Init game
 	gameRule := invitation.GameRule
 	gameMetric := NewGameMetric()
-	gameMetric.StartGame(gameRule)
 	ships := gameMetric.CreateShips(gameRule.Ships)
 	ships = gameMetric.ArrangeShips(lib.Size{Width: gameRule.BoardWidth, Height: gameRule.BoardHeight}, ships)
+	gameMetric.StartGame(gameRule, ships)
 
 	shipPositions := make([]domain.ShipPosition, 0)
 	for i := 0; i < len(ships); i++ {
@@ -72,7 +72,11 @@ func (g *GameService) HandleTurn(context *gin.Context, request domain.TurnRQ) (d
 		invitation := &domain.GameInvitationRQ{}
 		err = g.CacheService.Get(invitationCacheKey, invitation)
 
-		gameMetric.StartGame(invitation.GameRule)
+		gameRule := invitation.GameRule
+		gameMetric := NewGameMetric()
+		ships := gameMetric.CreateShips(gameRule.Ships)
+		ships = gameMetric.ArrangeShips(lib.Size{Width: gameRule.BoardWidth, Height: gameRule.BoardHeight}, ships)
+		gameMetric.StartGame(invitation.GameRule, ships)
 	} else {
 		gameMetric.LoadGameState(*gameState)
 	}

@@ -33,6 +33,7 @@ func (s *Ship) GetPositions() []lib.Point {
 
 func (s *Ship) ConflictWith(other Ship, boardSize lib.Size) bool {
 	otherPositions := other.Action.Zoom(boardSize, other.Location, other.Orientation)
+	//otherPositions := other.GetPositions()
 	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {

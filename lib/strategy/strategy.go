@@ -35,8 +35,8 @@ func SetUpShotPattern(boardSize lib.Size) []lib.Point {
 	return shotPatterns
 }
 
-func SetUpPriorityShots(boardSize lib.Size, shotPatterns []lib.Point) []lib.Point {
-	priorityShots := make([]lib.Point, 0)
+func SetUpPriorityShots(boardSize lib.Size, shotPatterns []lib.Point) []lib.PriorityPoint {
+	priorityShots := make([]lib.PriorityPoint, 0)
 	for i := len(shotPatterns) - 1; i >= 0; i-- {
 		tmp := shotPatterns[i]
 		//if (0 <= tmp.X && tmp.X < 1) || (boardSize.Width - 1 <= tmp.X && tmp.X < boardSize.Width) || (0 <= tmp.Y && tmp.Y < 1) || (boardSize.Height - 1 <= tmp.Y && tmp.Y < boardSize.Height) {
@@ -44,28 +44,29 @@ func SetUpPriorityShots(boardSize lib.Size, shotPatterns []lib.Point) []lib.Poin
 		//	shotPatterns = append(shotPatterns[:i], shotPatterns[i+1:]...)
 		//}
 		// center
-		if (2 <= tmp.X && tmp.X < boardSize.Width-2) && (2 <= tmp.Y && tmp.Y < boardSize.Height-2) {
-			priorityShots = append(priorityShots, tmp)
+		/*if (2 <= tmp.X && tmp.X < boardSize.Width-2) && (2 <= tmp.Y && tmp.Y < boardSize.Height-2) {
+			priorityShots = append(priorityShots, lib.PriorityPoint{Location:tmp, Score:0})
 			continue
 		}
 
 		// corners
 		if (0 <= tmp.X && tmp.X < 2 && 0 <= tmp.Y && tmp.Y < 2) || (boardSize.Width-2 <= tmp.X && tmp.X < boardSize.Width && 0 <= tmp.Y && tmp.Y < 2) || (0 <= tmp.X && tmp.X < 2 && boardSize.Height-2 <= tmp.Y && tmp.Y < boardSize.Height) || (boardSize.Width-2 <= tmp.X && tmp.X < boardSize.Width && boardSize.Height-2 <= tmp.Y && tmp.Y < boardSize.Height) {
-			priorityShots = append(priorityShots, tmp)
+			priorityShots = append(priorityShots, lib.PriorityPoint{Location:tmp, Score:0})
 			continue
 		}
 
 		// center vertexes
-		if (boardSize.Width/2-2 <= tmp.X && tmp.X < boardSize.Width/2+2 && (0 <= tmp.Y && tmp.Y < 2 || boardSize.Height-2 <= tmp.Y && tmp.Y < boardSize.Height)) || ((0 <= tmp.X && tmp.X < 2 || boardSize.Width-2 <= tmp.X && tmp.X < boardSize.Width) && boardSize.Height/2-1 <= tmp.Y && tmp.Y < boardSize.Height/2+1) {
-			priorityShots = append(priorityShots, tmp)
+		if (boardSize.Width/2-2 <= tmp.X && tmp.X < boardSize.Width/2+2 && (0 <= tmp.Y && tmp.Y < 2 || boardSize.Height-2 <= tmp.Y && tmp.Y < boardSize.Height)) || ((0 <= tmp.X && tmp.X < 2 || boardSize.Width-2 <= tmp.X && tmp.X < boardSize.Width) && boardSize.Height/2-2 <= tmp.Y && tmp.Y < boardSize.Height/2+2) {
+			priorityShots = append(priorityShots, lib.PriorityPoint{Location:tmp, Score:0})
 			continue
 		}
 
 		// quarter vertexes
 		if (boardSize.Width/4-2 <= tmp.X && tmp.X < boardSize.Width/4+2 && (0 <= tmp.Y && tmp.Y < 2 || boardSize.Height-2 <= tmp.Y && tmp.Y < boardSize.Height)) || (boardSize.Width*3/4-2 <= tmp.X && tmp.X < boardSize.Width*3/4+2 && (0 <= tmp.Y && tmp.Y < 2 || boardSize.Height-2 <= tmp.Y && tmp.Y < boardSize.Height)) {
-			priorityShots = append(priorityShots, tmp)
+			priorityShots = append(priorityShots, lib.PriorityPoint{Location:tmp, Score:0})
 			continue
-		}
+		}*/
+		priorityShots = append(priorityShots, lib.PriorityPoint{Location:tmp, Score:0})
 	}
 	return priorityShots
 }
@@ -167,6 +168,28 @@ func PrintPoints(boardSize lib.Size, points []lib.Point) {
 			}
 			if !printed {
 				fmt.Print(" ")
+			}
+			fmt.Print("|")
+		}
+		fmt.Println()
+	}
+	fmt.Println()
+}
+
+func PrintPriorityPoints(boardSize lib.Size, points []lib.PriorityPoint) {
+	for r := 0; r < boardSize.Height; r++ {
+		fmt.Print("|")
+		for c := 0; c < boardSize.Width; c++ {
+			printed := false
+			for i := 0; i < len(points); i++ {
+				if points[i].Location.X == c && points[i].Location.Y == r {
+					fmt.Printf("%2d", points[i].Score)
+					printed = true
+					break
+				}
+			}
+			if !printed {
+				fmt.Print("  ")
 			}
 			fmt.Print("|")
 		}

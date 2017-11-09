@@ -5,6 +5,11 @@ type Point struct {
 	Y int `json:"y"`
 }
 
+type PriorityPoint struct {
+	Location Point
+	Score    int
+}
+
 func (p *Point) ValidInBoard(boardSize Size) bool {
 	if p.X < 0 || p.Y < 0 {
 		return false

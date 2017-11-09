@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"github.com/anhtuan29592/paladin/lib/constant"
 	"math/rand"
-	"log"
 	"github.com/anhtuan29592/paladin/lib/util"
 	"github.com/anhtuan29592/paladin/lib/ship"
+	"sort"
 )
 
 type SampleStrategy struct {
@@ -15,7 +15,7 @@ type SampleStrategy struct {
 	Shots         []lib.Point
 	HitShots      []lib.Point
 	ShotPatterns  []lib.Point
-	PriorityShots []lib.Point
+	PriorityShots []lib.PriorityPoint
 	ComboShots    []lib.Point
 	InvalidShots  []lib.Point
 	CurrentTarget *Target
@@ -29,6 +29,11 @@ type Target struct {
 	PrevTarget *Target
 }
 
+type PriorityPoint struct {
+	Location lib.Point
+	Score    int
+}
+
 func (s *SampleStrategy) StartGame(boardSize lib.Size, ships []ship.Ship) {
 	s.BoardSize = boardSize
 	s.Shots = make([]lib.Point, 0)
@@ -40,13 +45,11 @@ func (s *SampleStrategy) StartGame(boardSize lib.Size, ships []ship.Ship) {
 	s.ShotPatterns = SetUpShotPattern(boardSize)
 	s.PriorityShots = SetUpPriorityShots(boardSize, s.ShotPatterns)
 
-	PrintPoints(boardSize, s.PriorityShots)
+	PrintPriorityPoints(boardSize, s.PriorityShots)
 
 	for i := 0; i < len(ships); i++ {
 		s.ShipTypeCount[ships[i].GetType()]++
 	}
-
-	log.Print(s.ShipTypeCount)
 }
 
 func (s *SampleStrategy) GetShot() (point lib.Point) {
@@ -110,7 +113,7 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
 			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].X == testPoint.X && s.PriorityShots[j].Y == testPoint.Y {
+				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
 					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
 					break
 				}
@@ -122,7 +125,7 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
 			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].X == testPoint.X && s.PriorityShots[j].Y == testPoint.Y {
+				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
 					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
 					break
 				}
@@ -134,7 +137,7 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
 			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].X == testPoint.X && s.PriorityShots[j].Y == testPoint.Y {
+				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
 					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
 					break
 				}
@@ -146,7 +149,7 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
 			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].X == testPoint.X && s.PriorityShots[j].Y == testPoint.Y {
+				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
 					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
 					break
 				}
@@ -189,10 +192,26 @@ func (s *SampleStrategy) FireRandom() lib.Point {
 	var point lib.Point
 	for {
 		if len(s.PriorityShots) > 0 {
-			i := rand.Intn(len(s.PriorityShots))
-			point = s.PriorityShots[i]
-			s.PriorityShots = append(s.PriorityShots[:i], s.PriorityShots[i+1:]...)
-			PrintPoints(s.BoardSize, s.PriorityShots)
+			//i := rand.Intn(len(s.PriorityShots))
+			//point = s.PriorityShots[i]
+			s.UpdatePriority()
+			maxScore := s.PriorityShots[0].Score
+			randMax := make([]lib.PriorityPoint, 0)
+			for i := 0; i < len(s.PriorityShots); i++ {
+				if s.PriorityShots[i].Score == maxScore {
+					randMax = append(randMax, s.PriorityShots[i])
+				}
+			}
+
+			point = randMax[rand.Intn(len(randMax))].Location
+			for i := 0; i < len(s.PriorityShots); i++ {
+				if s.PriorityShots[i].Location.X == point.X && s.PriorityShots[i].Location.Y == point.Y {
+					s.PriorityShots = append(s.PriorityShots[:i], s.PriorityShots[i+1:]...)
+					break
+				}
+			}
+
+			PrintPriorityPoints(s.BoardSize, s.PriorityShots)
 		} else if len(s.ShotPatterns) > 0 {
 			i := rand.Intn(len(s.ShotPatterns))
 			point = s.ShotPatterns[i]
@@ -323,6 +342,7 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 
 	wholeLineHorizontal := true
 	wholeLineVertical := true
+	node = t
 	for {
 		if node.PrevTarget == nil {
 			break
@@ -335,6 +355,8 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 		if node.Location.Y != node.PrevTarget.Location.Y {
 			wholeLineHorizontal = false
 		}
+
+		node = node.PrevTarget
 	}
 
 	nodeCount := len(nodes)
@@ -391,7 +413,9 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 					return testNode
 				}
 			}
-		} else if shipTypeCount[constant.OIL_RIG] > 0 {
+		}
+
+		if shipTypeCount[constant.OIL_RIG] > 0 {
 			// oil rig
 			neighborCount := len(allNeighbors)
 			for i := 0; i < neighborCount; i++ {
@@ -437,5 +461,171 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 		}
 	}
 
-	return allNeighbors[0]
+	if len(allNeighbors) > 0 {
+		return allNeighbors[0]
+	}
+	return lib.Point{X: -1, Y: -1}
+}
+
+func (s *SampleStrategy) GetScore(point lib.PriorityPoint) int {
+	score := 0
+	// space to left
+	x := point.Location.X - 1
+	y := point.Location.Y
+	for {
+		if x < 0 {
+			break
+		}
+
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		x--
+	}
+
+	// space to right
+	x = point.Location.X + 1
+	y = point.Location.Y
+	for {
+		if x >= s.BoardSize.Width {
+			break
+		}
+
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		x++
+	}
+
+	// space to top
+	x = point.Location.X
+	y = point.Location.Y - 1
+	for {
+		if y < 0 {
+			break
+		}
+
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		y--
+	}
+
+	// space to bottom
+	x = point.Location.X
+	y = point.Location.Y - 1
+	for {
+		if y >= s.BoardSize.Height {
+			break
+		}
+
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		y++
+	}
+
+	// space to top - left
+	x = point.Location.X - 1
+	y = point.Location.Y - 1
+	for {
+		if x < 0 && y < 0 {
+			break
+		}
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		if x >= 0 {
+			x--
+		}
+
+		if y >= 0 {
+			y--
+		}
+	}
+
+	// space to top - right
+	x = point.Location.X + 1
+	y = point.Location.Y - 1
+	for {
+		if x >= s.BoardSize.Width && y < 0 {
+			break
+		}
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		if x < s.BoardSize.Width {
+			x++
+		}
+		if y >= 0 {
+			y--
+		}
+	}
+
+	// space to bottom - left
+	x = point.Location.X - 1
+	y = point.Location.Y + 1
+	for {
+		if x < 0 && y >= s.BoardSize.Height {
+			break
+		}
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		if x >= 0 {
+			x--
+		}
+
+		if y < s.BoardSize.Height {
+			y++
+		}
+	}
+
+	// space to bottom - right
+	x = point.Location.X + 1
+	y = point.Location.Y + 1
+	for {
+		if x >= s.BoardSize.Width && y >= s.BoardSize.Height {
+			break
+		}
+		if util.CheckCoordinateInSlice(s.InvalidShots, x, y) {
+			break
+		}
+
+		score++
+		if x < s.BoardSize.Width {
+			x++
+		}
+
+		if y < s.BoardSize.Height {
+			y++
+		}
+	}
+
+	return score
+}
+
+func (s *SampleStrategy) UpdatePriority() {
+	for i := 0; i < len(s.PriorityShots); i++ {
+		s.PriorityShots[i].Score = s.GetScore(s.PriorityShots[i])
+	}
+
+	sort.Slice(s.PriorityShots, func(i, j int) bool {
+		return s.PriorityShots[i].Score > s.PriorityShots[j].Score
+	})
+
 }

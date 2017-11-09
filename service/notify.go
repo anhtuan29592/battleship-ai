@@ -1,10 +1,11 @@
 package service
 
 import (
-	"github.com/anhtuan29592/paladin/domain"
-	"github.com/anhtuan29592/paladin/config"
-	"strings"
 	"log"
+	"strings"
+
+	"github.com/anhtuan29592/paladin/config"
+	"github.com/anhtuan29592/paladin/domain"
 	"github.com/anhtuan29592/paladin/lib"
 )
 
@@ -31,4 +32,3 @@ func (n *NotifyService) HandleNotification(request domain.NotifyRQ) (domain.Noti
 	}
 	return domain.NotifyRS{Success: true}, nil
 }
-

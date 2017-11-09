@@ -1,21 +1,21 @@
 package strategy
 
 import (
-	"github.com/anhtuan29592/paladin/lib"
 	"encoding/json"
-	"github.com/anhtuan29592/paladin/lib/constant"
 	"math/rand"
-	"github.com/anhtuan29592/paladin/lib/util"
-	"github.com/anhtuan29592/paladin/lib/ship"
 	"sort"
+
+	"github.com/anhtuan29592/paladin/lib"
+	"github.com/anhtuan29592/paladin/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/ship"
+	"github.com/anhtuan29592/paladin/lib/util"
 )
 
 type SampleStrategy struct {
 	BoardSize     lib.Size
 	Shots         []lib.Point
 	HitShots      []lib.Point
-	ShotPatterns  []lib.Point
-	PriorityShots []lib.PriorityPoint
+	ShotPatterns  []lib.PriorityPoint
 	ComboShots    []lib.Point
 	InvalidShots  []lib.Point
 	CurrentTarget *Target
@@ -43,9 +43,7 @@ func (s *SampleStrategy) StartGame(boardSize lib.Size, ships []ship.Ship) {
 	s.ShipTypeCount = make(map[constant.ShipType]int)
 
 	s.ShotPatterns = SetUpShotPattern(boardSize)
-	s.PriorityShots = SetUpPriorityShots(boardSize, s.ShotPatterns)
-
-	PrintPriorityPoints(boardSize, s.PriorityShots)
+	util.PrintPriorityPoints(boardSize, s.ShotPatterns)
 
 	for i := 0; i < len(ships); i++ {
 		s.ShipTypeCount[ships[i].GetType()]++
@@ -60,12 +58,6 @@ func (s *SampleStrategy) GetShot() (point lib.Point) {
 		for {
 			shot = s.CurrentTarget.EvaluateNextShot(s.InvalidShots, s.ShipTypeCount)
 			if !util.CheckPointInSlice(s.InvalidShots, shot) && point.ValidInBoard(s.BoardSize) {
-				found = true
-				break
-			}
-
-			shot = s.CurrentTarget.EvaluateNextShot(s.Shots, s.ShipTypeCount)
-			if !util.CheckPointInSlice(s.Shots, shot) && point.ValidInBoard(s.BoardSize) {
 				found = true
 				break
 			}
@@ -112,9 +104,9 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 			if !util.CheckPointInSlice(s.InvalidShots, testPoint) {
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
-			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
-					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
+			for j := 0; j < len(s.ShotPatterns); j++ {
+				if s.ShotPatterns[j].Location.X == testPoint.X && s.ShotPatterns[j].Location.Y == testPoint.Y {
+					s.ShotPatterns = append(s.ShotPatterns[:j], s.ShotPatterns[j+1:]...)
 					break
 				}
 			}
@@ -124,9 +116,9 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 			if !util.CheckPointInSlice(s.InvalidShots, testPoint) {
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
-			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
-					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
+			for j := 0; j < len(s.ShotPatterns); j++ {
+				if s.ShotPatterns[j].Location.X == testPoint.X && s.ShotPatterns[j].Location.Y == testPoint.Y {
+					s.ShotPatterns = append(s.ShotPatterns[:j], s.ShotPatterns[j+1:]...)
 					break
 				}
 			}
@@ -136,9 +128,9 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 			if !util.CheckPointInSlice(s.InvalidShots, testPoint) {
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
-			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
-					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
+			for j := 0; j < len(s.ShotPatterns); j++ {
+				if s.ShotPatterns[j].Location.X == testPoint.X && s.ShotPatterns[j].Location.Y == testPoint.Y {
+					s.ShotPatterns = append(s.ShotPatterns[:j], s.ShotPatterns[j+1:]...)
 					break
 				}
 			}
@@ -148,9 +140,9 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 			if !util.CheckPointInSlice(s.InvalidShots, testPoint) {
 				s.InvalidShots = append(s.InvalidShots, testPoint)
 			}
-			for j := 0; j < len(s.PriorityShots); j++ {
-				if s.PriorityShots[j].Location.X == testPoint.X && s.PriorityShots[j].Location.Y == testPoint.Y {
-					s.PriorityShots = append(s.PriorityShots[:j], s.PriorityShots[j+1:]...)
+			for j := 0; j < len(s.ShotPatterns); j++ {
+				if s.ShotPatterns[j].Location.X == testPoint.X && s.ShotPatterns[j].Location.Y == testPoint.Y {
+					s.ShotPatterns = append(s.ShotPatterns[:j], s.ShotPatterns[j+1:]...)
 					break
 				}
 			}
@@ -191,40 +183,34 @@ func (s *SampleStrategy) LoadGameState(state lib.GameState) {
 func (s *SampleStrategy) FireRandom() lib.Point {
 	var point lib.Point
 	for {
-		if len(s.PriorityShots) > 0 {
-			//i := rand.Intn(len(s.PriorityShots))
-			//point = s.PriorityShots[i]
+		if len(s.ShotPatterns) > 0 {
 			s.UpdatePriority()
-			maxScore := s.PriorityShots[0].Score
+			maxScore := s.ShotPatterns[0].Score
 			randMax := make([]lib.PriorityPoint, 0)
-			for i := 0; i < len(s.PriorityShots); i++ {
-				if s.PriorityShots[i].Score == maxScore {
-					randMax = append(randMax, s.PriorityShots[i])
+			for i := 0; i < len(s.ShotPatterns); i++ {
+				if s.ShotPatterns[i].Score == maxScore {
+					randMax = append(randMax, s.ShotPatterns[i])
 				}
 			}
 
 			point = randMax[rand.Intn(len(randMax))].Location
-			for i := 0; i < len(s.PriorityShots); i++ {
-				if s.PriorityShots[i].Location.X == point.X && s.PriorityShots[i].Location.Y == point.Y {
-					s.PriorityShots = append(s.PriorityShots[:i], s.PriorityShots[i+1:]...)
+			for i := 0; i < len(s.ShotPatterns); i++ {
+				if s.ShotPatterns[i].Location.X == point.X && s.ShotPatterns[i].Location.Y == point.Y {
+					s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
 					break
 				}
 			}
 
-			PrintPriorityPoints(s.BoardSize, s.PriorityShots)
-		} else if len(s.ShotPatterns) > 0 {
-			i := rand.Intn(len(s.ShotPatterns))
-			point = s.ShotPatterns[i]
-			s.ShotPatterns = append(s.ShotPatterns[:i], s.ShotPatterns[i+1:]...)
-			PrintPoints(s.BoardSize, s.ShotPatterns)
+			util.PrintPriorityPoints(s.BoardSize, s.ShotPatterns)
 		} else {
 			for {
-				point = s.FireAroundPoint(s.HitShots[0])
+				i := rand.Intn(len(s.HitShots))
+				point = s.FireAroundPoint(s.HitShots[i])
 				if s.ValidShot(point) {
 					break
 				}
 
-				s.HitShots = append(s.HitShots[:0], s.HitShots[1:]...)
+				s.HitShots = append(s.HitShots[:i], s.HitShots[i+1:]...)
 				if len(s.HitShots) <= 0 {
 					break
 				}
@@ -297,14 +283,14 @@ func (t *Target) Tracking(shots []lib.Point, point lib.Point) *Target {
 
 func (t *Target) InitNeighbors(shots []lib.Point) {
 
-	// down
-	testPoint := lib.Point{X: t.Location.X, Y: t.Location.Y + 1}
+	// up
+	testPoint := lib.Point{X: t.Location.X, Y: t.Location.Y - 1}
 	if testPoint.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testPoint) {
 		t.Neighbors = append(t.Neighbors, testPoint)
 	}
 
-	// up
-	testPoint = lib.Point{X: t.Location.X, Y: t.Location.Y - 1}
+	// down
+	testPoint = lib.Point{X: t.Location.X, Y: t.Location.Y + 1}
 	if testPoint.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testPoint) {
 		t.Neighbors = append(t.Neighbors, testPoint)
 	}
@@ -338,7 +324,7 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 		}
 		node = node.PrevTarget
 	}
-	PrintPoints(t.BoardSize, allNeighbors)
+	util.PrintPoints(t.BoardSize, allNeighbors)
 
 	wholeLineHorizontal := true
 	wholeLineVertical := true
@@ -364,7 +350,7 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 	// carrier ship: next is located
 	if nodeCount >= 4 && shipTypeCount[constant.CARRIER] > 0 {
 		if wholeLineHorizontal {
-			nodes = SortPoints(nodes, constant.HORIZONTAL, true)
+			nodes = util.SortPoints(nodes, constant.HORIZONTAL, true)
 			testNode := lib.Point{X: nodes[0].X + 1, Y: nodes[0].Y - 1}
 			if util.CheckPointInSlice(allNeighbors, testNode) {
 				return testNode
@@ -372,9 +358,64 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 		}
 
 		if wholeLineVertical {
-			nodes = SortPoints(nodes, constant.VERTICAL, true)
+			nodes = util.SortPoints(nodes, constant.VERTICAL, true)
 			testNode := lib.Point{X: nodes[0].X - 1, Y: nodes[0].Y + 1}
 			if util.CheckPointInSlice(allNeighbors, testNode) {
+				return testNode
+			}
+		}
+
+		countNode := make(map[int][]lib.Point)
+		idx := 0
+		// Scan from left to right to get pattern
+		for i := 0; i < t.BoardSize.Width; i++ {
+			found := false
+			for j := 0; j < nodeCount; j++ {
+				if nodes[j].X == i {
+					countNode[idx] = append(countNode[idx], nodes[j])
+					found = true
+				}
+			}
+			if found {
+				idx++
+			}
+		}
+
+		if len(countNode[0]) == 1 && len(countNode[1]) == 3 {
+			sameVertical := util.SortPoints(countNode[1], constant.VERTICAL, true)
+			//    CV
+			// CV CV
+			//    CV
+			//    XX
+			if sameVertical[1].Y == countNode[0][0].Y {
+				testNode := lib.Point{X: sameVertical[0].X, Y: sameVertical[0].Y + 3}
+				if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+					return testNode
+				}
+			}
+
+			//    XX
+			// CV CV
+			//    CV
+			//    CV
+			if sameVertical[0].Y == countNode[0][0].Y {
+				testNode := lib.Point{X: sameVertical[0].X, Y: sameVertical[0].Y - 1}
+				if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+					return testNode
+				}
+			}
+		}
+
+		if len(countNode[0]) == 1 && len(countNode[1]) == 2 && len(countNode[2]) == 1 {
+			testNode := lib.Point{X: countNode[2][0].X + 1, Y: countNode[2][0].Y}
+			if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+				return testNode
+			}
+		}
+
+		if len(countNode[0]) == 2 && len(countNode[1]) == 1 && len(countNode[2]) == 1 {
+			testNode := lib.Point{X: countNode[1][0].X - 2, Y: countNode[1][0].Y}
+			if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
 				return testNode
 			}
 		}
@@ -382,10 +423,22 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 
 	// battle ship or oil rig
 	if nodeCount >= 3 {
+		if shipTypeCount[constant.OIL_RIG] > 0 {
+			// oil rig
+			neighborCount := len(allNeighbors)
+			for i := 0; i < neighborCount-1; i++ {
+				for j := i + 1; j < neighborCount; j++ {
+					if allNeighbors[i].X == allNeighbors[j].X && allNeighbors[i].Y == allNeighbors[j].Y {
+						return allNeighbors[i]
+					}
+				}
+			}
+		}
+
 		// battle ship: next is neighbor of last no first
 		if shipTypeCount[constant.BATTLE_SHIP] > 0 {
 			if wholeLineHorizontal {
-				nodes = SortPoints(nodes, constant.HORIZONTAL, true)
+				nodes = util.SortPoints(nodes, constant.HORIZONTAL, true)
 				lastNode := nodes[nodeCount-1]
 				testNode := lib.Point{X: lastNode.X + 1, Y: lastNode.Y}
 				if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
@@ -400,7 +453,7 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 			}
 
 			if wholeLineVertical {
-				nodes = SortPoints(nodes, constant.VERTICAL, true)
+				nodes = util.SortPoints(nodes, constant.VERTICAL, true)
 				lastNode := nodes[nodeCount-1]
 				testNode := lib.Point{X: lastNode.X, Y: lastNode.Y + 1}
 				if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
@@ -415,23 +468,90 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 			}
 		}
 
-		if shipTypeCount[constant.OIL_RIG] > 0 {
-			// oil rig
-			neighborCount := len(allNeighbors)
-			for i := 0; i < neighborCount; i++ {
-				for j := i + 1; j < neighborCount; j++ {
-					if allNeighbors[i].X == allNeighbors[j].X && allNeighbors[i].Y == allNeighbors[j].Y {
-						return allNeighbors[i]
+		if shipTypeCount[constant.CARRIER] > 0 {
+			countNode := make(map[int][]lib.Point)
+			idx := 0
+			// Scan from left to right to get pattern
+			for i := 0; i < t.BoardSize.Width; i++ {
+				found := false
+				for j := 0; j < nodeCount; j++ {
+					if nodes[j].X == i {
+						countNode[idx] = append(countNode[idx], nodes[j])
+						found = true
 					}
+				}
+				if found {
+					idx++
+				}
+			}
+
+			if len(countNode[0]) == 1 && len(countNode[1]) == 2 {
+				sameVertical := util.SortPoints(countNode[1], constant.VERTICAL, true)
+				//    XX
+				// CV CV
+				//    CV
+				//    XX
+				if sameVertical[0].Y == countNode[0][0].Y {
+					//    XX
+					// CV CV
+					//    CV
+					testNode := lib.Point{X: sameVertical[0].X, Y: sameVertical[0].Y - 1}
+					if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+						return testNode
+					}
+
+					// CV CV
+					//    CV
+					//    XX
+					testNode = lib.Point{X: sameVertical[0].X, Y: sameVertical[0].Y + 2}
+					if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+						return testNode
+					}
+				}
+
+				//    CV
+				// CV CV XX
+				//    XX
+				if sameVertical[1].Y == countNode[0][0].Y {
+					//    CV
+					// CV CV
+					//    XX
+					testNode := lib.Point{X: sameVertical[0].X, Y: sameVertical[0].Y + 2}
+					if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+						return testNode
+					}
+					//    CV
+					// CV CV XX
+					testNode = lib.Point{X: sameVertical[0].X + 1, Y: sameVertical[0].Y + 1}
+					if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+						return testNode
+					}
+				}
+			}
+
+			if len(countNode[0]) == 2 && len(countNode[1]) == 1 {
+				sameVertical := util.SortPoints(countNode[0], constant.VERTICAL, true)
+				//    CV
+				// XX CV CV
+				testNode := lib.Point{X: sameVertical[0].X - 1, Y: sameVertical[0].Y + 1}
+				if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+					return testNode
+				}
+
+				// CV
+				// CV CV XX
+				testNode = lib.Point{X: sameVertical[0].X + 2, Y: sameVertical[0].Y + 1}
+				if testNode.ValidInBoard(t.BoardSize) && !util.CheckPointInSlice(shots, testNode) {
+					return testNode
 				}
 			}
 		}
 	}
 
-	// battle ship or oil rig
+	// cruiser
 	if nodeCount >= 2 && shipTypeCount[constant.CRUISER] > 0 {
 		if wholeLineHorizontal {
-			nodes = SortPoints(nodes, constant.HORIZONTAL, true)
+			nodes = util.SortPoints(nodes, constant.HORIZONTAL, true)
 			lastNode := nodes[nodeCount-1]
 			testNode := lib.Point{X: lastNode.X + 1, Y: lastNode.Y}
 			if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
@@ -446,7 +566,7 @@ func (t *Target) EvaluateNextShot(shots []lib.Point, shipTypeCount map[constant.
 		}
 
 		if wholeLineVertical {
-			nodes = SortPoints(nodes, constant.VERTICAL, true)
+			nodes = util.SortPoints(nodes, constant.VERTICAL, true)
 			lastNode := nodes[nodeCount-1]
 			testNode := lib.Point{X: lastNode.X, Y: lastNode.Y + 1}
 			if testNode.InlineWith(nodes) && util.CheckPointInSlice(allNeighbors, testNode) {
@@ -620,12 +740,11 @@ func (s *SampleStrategy) GetScore(point lib.PriorityPoint) int {
 }
 
 func (s *SampleStrategy) UpdatePriority() {
-	for i := 0; i < len(s.PriorityShots); i++ {
-		s.PriorityShots[i].Score = s.GetScore(s.PriorityShots[i])
+	for i := 0; i < len(s.ShotPatterns); i++ {
+		s.ShotPatterns[i].Score = s.GetScore(s.ShotPatterns[i])
 	}
 
-	sort.Slice(s.PriorityShots, func(i, j int) bool {
-		return s.PriorityShots[i].Score > s.PriorityShots[j].Score
+	sort.Slice(s.ShotPatterns, func(i, j int) bool {
+		return s.ShotPatterns[i].Score > s.ShotPatterns[j].Score
 	})
-
 }

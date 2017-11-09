@@ -1,8 +1,8 @@
 package domain
 
 type GameRule struct {
-	BoardWidth  int             `json:"boardWidth"`
-	BoardHeight int             `json:"boardHeight"`
+	BoardWidth  int            `json:"boardWidth"`
+	BoardHeight int            `json:"boardHeight"`
 	Ships       []ShipQuantity `json:"ships"`
 }
 

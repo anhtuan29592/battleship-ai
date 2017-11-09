@@ -5,7 +5,6 @@ type Orientation int
 const (
 	HORIZONTAL Orientation = iota
 	VERTICAL
-	UNKNOWN
 )
 
 func (o Orientation) String() string {
@@ -49,7 +48,7 @@ func (s ShipType) String() string {
 type Direction int
 
 const (
-	UP    Direction = iota
+	UP Direction = iota
 	DOWN
 	LEFT
 	RIGHT
@@ -92,7 +91,4 @@ const (
 
 const (
 	HIT   = "HIT"
-	MISS  = "MISS"
-	CLEAR = "CLEAR"
-	SUNK  = "SUNK"
 )

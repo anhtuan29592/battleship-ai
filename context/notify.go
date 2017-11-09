@@ -2,9 +2,9 @@ package context
 
 import (
 	"github.com/anhtuan29592/paladin/domain"
+	"github.com/anhtuan29592/paladin/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"github.com/anhtuan29592/paladin/service"
 )
 
 type NotifyContext struct {

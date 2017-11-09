@@ -1,12 +1,13 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/anhtuan29592/paladin/domain"
 	"github.com/anhtuan29592/paladin/lib"
-	"github.com/anhtuan29592/paladin/lib/ship"
 	"github.com/anhtuan29592/paladin/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/ship"
 	"github.com/anhtuan29592/paladin/lib/strategy"
-	"fmt"
 )
 
 type GameMetric struct {
@@ -99,5 +100,4 @@ func PrintShip(boardSize lib.Size, ships []ship.Ship) {
 		}
 		fmt.Print("\n")
 	}
-
 }

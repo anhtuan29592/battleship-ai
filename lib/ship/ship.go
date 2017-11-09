@@ -1,15 +1,16 @@
 package ship
 
 import (
-	"github.com/anhtuan29592/battleship-ai/lib"
-	"github.com/anhtuan29592/battleship-ai/lib/constant"
-	"github.com/anhtuan29592/battleship-ai/lib/util"
+	"github.com/anhtuan29592/paladin/lib"
+	"github.com/anhtuan29592/paladin/lib/constant"
+	"github.com/anhtuan29592/paladin/lib/util"
 )
 
 type ShipAction interface {
 	GetType() constant.ShipType
 	GetSize(orientation constant.Orientation) lib.Size
 	GetPositions(location lib.Point, orientation constant.Orientation) []lib.Point
+	Zoom(boardSize lib.Size, location lib.Point, orientation constant.Orientation) []lib.Point
 }
 
 type Ship struct {
@@ -30,9 +31,9 @@ func (s *Ship) GetPositions() []lib.Point {
 	return s.Action.GetPositions(s.Location, s.Orientation)
 }
 
-func (s *Ship) ConflictWith(other Ship) bool {
-	otherPositions := other.Zoom()
-	myPositions := s.Zoom()
+func (s *Ship) ConflictWith(other Ship, boardSize lib.Size) bool {
+	otherPositions := other.Action.Zoom(boardSize, other.Location, other.Orientation)
+	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -46,8 +47,8 @@ func (s *Ship) ConflictWith(other Ship) bool {
 }
 
 func (s *Ship) Touch(other Ship, touchDistance int) bool {
-	otherPositions := other.Zoom()
-	myPositions := s.Zoom()
+	otherPositions := other.GetPositions()
+	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {
 		for j := 0; j < len(myPositions); j++ {
@@ -80,35 +81,9 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 
 	size := s.GetSize()
 
-	if s.Location.X+size.Width > boardSize.Width || s.Location.Y+size.Height > boardSize.Height {
+	if s.Location.X+size.Width-1 >= boardSize.Width || s.Location.Y+size.Height-1 >= boardSize.Height {
 		return false
 	}
 
 	return true
-}
-
-func (s *Ship) Zoom() []lib.Point {
-	sType := s.GetType()
-	positions := s.GetPositions()
-
-	if sType == constant.CARRIER || sType == constant.BATTLE_SHIP {
-		return positions
-	}
-
-	zoom := make([]lib.Point, 0)
-	for i := 0; i < len(positions); i++ {
-		p := positions[i]
-		// up
-		zoom = append(zoom, lib.Point{X: p.X, Y: p.Y - 1})
-
-		// down
-		zoom = append(zoom, lib.Point{X: p.X, Y: p.Y + 1})
-
-		// left
-		zoom = append(zoom, lib.Point{X: p.X - 1, Y: p.Y})
-
-		// right
-		zoom = append(zoom, lib.Point{X: p.X + 1, Y: p.Y})
-	}
-	return zoom
 }

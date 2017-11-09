@@ -1,5 +1,5 @@
-hash: b2c613f55a673ef9de74e11baec07203ad048875691235474941a10fc60c594e
-updated: 2017-11-01T12:50:56.552926739+07:00
+hash: 3dbada60c65b841fb7399c3040f93536ca387818ab327e108de70510a8481333
+updated: 2017-11-07T23:20:41.862091767+07:00
 imports:
 - name: github.com/facebookgo/inject
   version: cc1aa653e50f6a9893bcaef89e673e5b24e1e97b
@@ -24,10 +24,6 @@ imports:
   version: 1643683e1b54a9e88ad26d98f81400c8c9d9f4f9
   subpackages:
   - proto
-- name: github.com/jinzhu/gorm
-  version: 0a51f6cdc55d1650d9ed3b4c13026cfa9133b01e
-- name: github.com/jinzhu/inflection
-  version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
 - name: github.com/ugorji/go

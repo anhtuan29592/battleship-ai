@@ -1,6 +1,9 @@
 package util
 
-import "github.com/anhtuan29592/battleship-ai/lib"
+import (
+	"github.com/anhtuan29592/paladin/lib"
+	"sort"
+)
 
 func Abs(value int) int {
 	if value < 0 {
@@ -18,4 +21,10 @@ func CheckPointInSlice(slice []lib.Point, point lib.Point) bool {
 	}
 
 	return false
+}
+
+func FindIndex(slice []lib.Point, point lib.Point) int {
+	return sort.Search(len(slice), func(i int) bool {
+		return slice[i].X == point.X && slice[i].Y == point.Y
+	})
 }

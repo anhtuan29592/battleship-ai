@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/anhtuan29592/battleship-ai/config"
-	"github.com/anhtuan29592/battleship-ai/context"
+	"github.com/anhtuan29592/paladin/config"
+	"github.com/anhtuan29592/paladin/context"
 	"github.com/facebookgo/inject"
 	"github.com/gin-gonic/gin"
 	"io"

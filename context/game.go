@@ -1,8 +1,8 @@
 package context
 
 import (
-	"github.com/anhtuan29592/battleship-ai/domain"
-	"github.com/anhtuan29592/battleship-ai/service"
+	"github.com/anhtuan29592/paladin/domain"
+	"github.com/anhtuan29592/paladin/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"log"

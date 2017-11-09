@@ -21,10 +21,10 @@ func (c *CacheService) Put(key string, value interface{}) error {
 		}
 	}
 
-	err = c.RedisCli.Set(key, string(arr), time.Duration(5 * time.Minute)).Err()
+	err = c.RedisCli.Set(key, string(arr), time.Duration(10 * time.Minute)).Err()
 	if err != nil {
 		log.Print("put cache error, retry...")
-		err = c.RedisCli.Set(key, string(arr), time.Duration(5 * time.Minute)).Err()
+		err = c.RedisCli.Set(key, string(arr), time.Duration(10 * time.Minute)).Err()
 	}
 
 	return err

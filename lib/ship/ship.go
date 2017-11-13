@@ -10,7 +10,6 @@ type ShipAction interface {
 	GetType() constant.ShipType
 	GetSize(orientation constant.Orientation) lib.Size
 	GetPositions(location lib.Point, orientation constant.Orientation) []lib.Point
-	Zoom(boardSize lib.Size, location lib.Point, orientation constant.Orientation) []lib.Point
 }
 
 type Ship struct {
@@ -32,7 +31,7 @@ func (s *Ship) GetPositions() []lib.Point {
 }
 
 func (s *Ship) ConflictWith(other Ship, boardSize lib.Size) bool {
-	otherPositions := other.Action.Zoom(boardSize, other.Location, other.Orientation)
+	otherPositions := other.Zoom(boardSize)
 	myPositions := s.GetPositions()
 
 	for i := 0; i < len(otherPositions); i++ {
@@ -86,4 +85,36 @@ func (s *Ship) IsValid(boardSize lib.Size) bool {
 	}
 
 	return true
+}
+
+func (s *Ship) Zoom(boardSize lib.Size) []lib.Point {
+	positions := s.GetPositions()
+	for i := len(positions) - 1; i >= 0; i-- {
+		pos := positions[i]
+		// up
+		point := lib.Point{X: pos.X, Y: pos.Y - 1}
+		if point.ValidInBoard(boardSize) && !util.CheckPointInSlice(positions, point) {
+			positions = append(positions, point)
+		}
+
+		// down
+		point = lib.Point{X: pos.X, Y: pos.Y + 1}
+		if point.ValidInBoard(boardSize) && !util.CheckPointInSlice(positions, point) {
+			positions = append(positions, point)
+		}
+
+		// left
+		point = lib.Point{X: pos.X - 1, Y: pos.Y}
+		if point.ValidInBoard(boardSize) && !util.CheckPointInSlice(positions, point) {
+			positions = append(positions, point)
+		}
+
+		// right
+		point = lib.Point{X: pos.X + 1, Y: pos.Y}
+		if point.ValidInBoard(boardSize) && !util.CheckPointInSlice(positions, point) {
+			positions = append(positions, point)
+		}
+	}
+
+	return positions
 }

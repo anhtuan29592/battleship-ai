@@ -1,11 +1,12 @@
 package service
 
 import (
+	"log"
+	"strings"
+
 	"github.com/anhtuan29592/paladin/domain"
 	"github.com/anhtuan29592/paladin/lib"
 	"github.com/gin-gonic/gin"
-	"log"
-	"strings"
 )
 
 type GameService struct {

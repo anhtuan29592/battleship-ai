@@ -21,7 +21,6 @@ type SampleStrategy struct {
 	InvalidShots       []lib.Point
 	CurrentTarget      *Target
 	ShipTypeCount      map[constant.ShipType]int
-	MissCrossLineCount int
 }
 
 type Target struct {
@@ -37,7 +36,6 @@ type PriorityPoint struct {
 }
 
 func (s *SampleStrategy) StartGame(boardSize lib.Size, ships []ship.Ship) {
-	s.MissCrossLineCount = 0
 	s.BoardSize = boardSize
 	s.Shots = make([]lib.Point, 0)
 	s.HitShots = make([]lib.Point, 0)
@@ -79,13 +77,6 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 	s.Shots = append(s.Shots, point)
 	s.HitShots = append(s.HitShots, point)
 	s.InvalidShots = append(s.InvalidShots, point)
-	if (0 <= point.X && point.X < 2) || (s.BoardSize.Width-2 <= point.X && point.X < s.BoardSize.Width) || (0 <= point.Y && point.Y < 2) || (s.BoardSize.Height-2 <= point.Y && point.Y < s.BoardSize.Height) {
-		s.MissCrossLineCount--
-		log.Printf("Miss cross line count %d", s.MissCrossLineCount)
-		if s.MissCrossLineCount < 0 {
-			s.MissCrossLineCount = 0
-		}
-	}
 
 	if len(shipPositions) > 0 {
 		s.ShipTypeCount[constant.ShipType(shipType)]--
@@ -167,14 +158,6 @@ func (s *SampleStrategy) ShotHit(point lib.Point, shipType string, shipPositions
 func (s *SampleStrategy) ShotMiss(point lib.Point) {
 	s.InvalidShots = append(s.InvalidShots, point)
 	s.Shots = append(s.Shots, point)
-
-	if (0 <= point.X && point.X < 2) || (s.BoardSize.Width-2 <= point.X && point.X < s.BoardSize.Width) || (0 <= point.Y && point.Y < 2) || (s.BoardSize.Height-2 <= point.Y && point.Y < s.BoardSize.Height) {
-		s.MissCrossLineCount++
-		log.Printf("Miss cross line count %d", s.MissCrossLineCount)
-		if s.MissCrossLineCount > 6 {
-			s.MissCrossLineCount = 6
-		}
-	}
 }
 
 func (s *SampleStrategy) GetGameState() lib.GameState {
@@ -764,7 +747,7 @@ func (s *SampleStrategy) GetScore(point lib.PriorityPoint) int {
 		y++
 	}
 
-	if s.MissCrossLineCount <= 6 {
+	/*if s.MissCrossLineCount <= 6 {
 		// space to top - left
 		x = point.Location.X - 1
 		y = point.Location.Y - 1
@@ -847,7 +830,7 @@ func (s *SampleStrategy) GetScore(point lib.PriorityPoint) int {
 				y++
 			}
 		}
-	}
+	}*/
 
 	return score
 }
